@@ -181,15 +181,6 @@ export function Sidebar({ role, onRoleChange, collapsed, onCollapseChange }: Rea
             <Settings className="w-5 h-5" />
             {!controlledCollapsed && <span className="font-medium">Settings</span>}
           </Link>
-          <button
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 mt-2",
-              "text-destructive/80 hover:bg-destructive/10 hover:text-destructive"
-            )}
-          >
-            <LogOut className="w-5 h-5" />
-            {!controlledCollapsed && <span className="font-medium">Logout</span>}
-          </button>
         </div>
 
         {/* Collapse Toggle - Desktop Only */}
