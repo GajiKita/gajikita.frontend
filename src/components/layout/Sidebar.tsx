@@ -1,9 +1,9 @@
-'use client';
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   Users,
@@ -19,12 +19,15 @@ import {
   LogOut,
   ChevronDown,
   Zap,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 interface SidebarProps {
-  role: "hr" | "employee";
-  onRoleChange: (role: "hr" | "employee") => void;
+  role: "hr" | "employee"
+  onRoleChange: (role: "hr" | "employee") => void
+  collapsed?: boolean
+  onCollapseChange?: (collapsed: boolean) => void
 }
 
 const hrNavItems = [
@@ -34,21 +37,24 @@ const hrNavItems = [
   { icon: TrendingUp, label: "Analytics", path: "/analytics" },
   { icon: CreditCard, label: "Payroll Setup", path: "/payroll" },
   { icon: Shield, label: "Compliance", path: "/compliance" },
-];
+]
 
 const employeeNavItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Wallet, label: "Withdraw", path: "/withdraw" },
   { icon: FileText, label: "History", path: "/history" },
   { icon: CreditCard, label: "SBT Card", path: "/sbt" },
-];
+]
 
-export function Sidebar({ role, onRoleChange }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const pathname = usePathname() ?? "/";
+export function Sidebar({ role, onRoleChange, collapsed, onCollapseChange }: Readonly<SidebarProps>) {
+  const controlledCollapsed = collapsed ?? false
+  const setCollapsed = (value: boolean) => {
+    onCollapseChange?.(value)
+  }
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const pathname = usePathname() ?? "/"
 
-  const navItems = role === "hr" ? hrNavItems : employeeNavItems;
+  const navItems = role === "hr" ? hrNavItems : employeeNavItems
 
   return (
     <>
@@ -74,21 +80,29 @@ export function Sidebar({ role, onRoleChange }: SidebarProps) {
       <aside
         className={cn(
           "fixed left-0 top-0 h-screen bg-sidebar z-50 transition-all duration-300 flex flex-col",
-          collapsed ? "w-20" : "w-64",
+          controlledCollapsed ? "w-20" : "w-64",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
         <div className="h-20 flex items-center px-6 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-              <Zap className="w-5 h-5 text-primary-foreground" />
-            </div>
-            {!collapsed && (
-              <div className="animate-fade-in">
-                <h1 className="text-xl font-bold text-sidebar-foreground">GajiKita</h1>
-                <p className="text-xs text-sidebar-foreground/60">Salary Advance</p>
-              </div>
+            {controlledCollapsed ? (
+              <Image
+                src="/images/logo.png"
+                alt="GajiKita"
+                width={120}
+                height={120}
+                className="w-10 h-10 object-contain"
+              />
+            ) : (
+              <Image
+                src="/images/logo-gaji-kita.png"
+                alt="GajiKita"
+                width={120}
+                height={120}
+                className="w-full h-full object-contain"
+              />
             )}
           </div>
         </div>
@@ -109,13 +123,15 @@ export function Sidebar({ role, onRoleChange }: SidebarProps) {
                 <Users className="w-4 h-4 text-primary-foreground" />
               )}
             </div>
-            {!collapsed && (
+            {!controlledCollapsed && (
               <>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-medium text-sidebar-foreground">
                     {role === "hr" ? "HR Admin" : "Karyawan"}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/60">Switch Role</p>
+                  <p className="text-xs text-sidebar-foreground/60">
+                    Switch Role
+                  </p>
                 </div>
                 <ChevronDown className="w-4 h-4 text-sidebar-foreground/60" />
               </>
@@ -126,7 +142,7 @@ export function Sidebar({ role, onRoleChange }: SidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = pathname === item.path;
+            const isActive = pathname === item.path
             return (
               <Link
                 key={item.path}
@@ -145,9 +161,11 @@ export function Sidebar({ role, onRoleChange }: SidebarProps) {
                     isActive ? "" : "group-hover:scale-110"
                   )}
                 />
-                {!collapsed && <span className="font-medium">{item.label}</span>}
+                {!controlledCollapsed && (
+                  <span className="font-medium">{item.label}</span>
+                )}
               </Link>
-            );
+            )
           })}
         </nav>
 
@@ -161,7 +179,7 @@ export function Sidebar({ role, onRoleChange }: SidebarProps) {
             )}
           >
             <Settings className="w-5 h-5" />
-            {!collapsed && <span className="font-medium">Settings</span>}
+            {!controlledCollapsed && <span className="font-medium">Settings</span>}
           </Link>
           <button
             className={cn(
@@ -170,23 +188,23 @@ export function Sidebar({ role, onRoleChange }: SidebarProps) {
             )}
           >
             <LogOut className="w-5 h-5" />
-            {!collapsed && <span className="font-medium">Logout</span>}
+            {!controlledCollapsed && <span className="font-medium">Logout</span>}
           </button>
         </div>
 
         {/* Collapse Toggle - Desktop Only */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => setCollapsed(!controlledCollapsed)}
           className="hidden lg:flex absolute -right-3 top-24 w-6 h-6 items-center justify-center bg-card border border-border rounded-full shadow-elevated hover:shadow-floating transition-all"
         >
           <ChevronDown
             className={cn(
               "w-4 h-4 text-muted-foreground transition-transform",
-              collapsed ? "-rotate-90" : "rotate-90"
+              controlledCollapsed ? "-rotate-90" : "rotate-90"
             )}
           />
         </button>
       </aside>
     </>
-  );
+  )
 }
