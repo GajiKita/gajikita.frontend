@@ -54,11 +54,21 @@ npm run dev
 
 This project is built with:
 
-- Vite
+- Next.js 16
 - TypeScript
 - React
-- shadcn-ui
-- Tailwind CSS
+- shadcn-ui + Tailwind CSS
+- Privy (authentication)
+
+### Environment variables
+
+Create a `.env.local` with:
+
+```
+NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+```
+
+You can obtain the App ID in the [Privy dashboard](https://dashboard.privy.io/), then run `npm install` to ensure `@privy-io/react-auth` is installed.
 
 ## How can I deploy this project?
 

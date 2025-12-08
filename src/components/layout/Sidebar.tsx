@@ -16,9 +16,7 @@ import {
   Shield,
   Menu,
   X,
-  LogOut,
   ChevronDown,
-  Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
@@ -46,7 +44,12 @@ const employeeNavItems = [
   { icon: CreditCard, label: "SBT Card", path: "/sbt" },
 ]
 
-export function Sidebar({ role, onRoleChange, collapsed, onCollapseChange }: Readonly<SidebarProps>) {
+export function Sidebar({
+  role,
+  onRoleChange,
+  collapsed,
+  onCollapseChange,
+}: Readonly<SidebarProps>) {
   const controlledCollapsed = collapsed ?? false
   const setCollapsed = (value: boolean) => {
     onCollapseChange?.(value)
@@ -179,7 +182,9 @@ export function Sidebar({ role, onRoleChange, collapsed, onCollapseChange }: Rea
             )}
           >
             <Settings className="w-5 h-5" />
-            {!controlledCollapsed && <span className="font-medium">Settings</span>}
+            {!controlledCollapsed && (
+              <span className="font-medium">Settings</span>
+            )}
           </Link>
         </div>
 
