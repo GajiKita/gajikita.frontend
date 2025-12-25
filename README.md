@@ -66,9 +66,11 @@ Create a `.env.local` with:
 
 ```
 NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+NEXT_PUBLIC_API_URL=https://api.your-backend.com
 ```
 
-You can obtain the App ID in the [Privy dashboard](https://dashboard.privy.io/), then run `npm install` to ensure `@privy-io/react-auth` is installed.
+You can obtain the App ID in the [Privy dashboard](https://dashboard.privy.io/), then run `npm install` to ensure `@privy-io/react-auth` is installed.  
+Client-side calls can be proxied through `/api/proxy/*`, which forwards to `NEXT_PUBLIC_API_URL`.
 
 ## How can I deploy this project?
 

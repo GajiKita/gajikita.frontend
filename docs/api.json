@@ -1,0 +1,1809 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/companies": {
+            "post": {
+                "operationId": "CompaniesController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCompanyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The company has been successfully created."
+                    },
+                    "403": {
+                        "description": "Forbidden."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Register a new company",
+                "tags": [
+                    "companies"
+                ]
+            },
+            "get": {
+                "operationId": "CompaniesController_findAll",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Return all companies."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List all companies",
+                "tags": [
+                    "companies"
+                ]
+            }
+        },
+        "/companies/{id}": {
+            "get": {
+                "operationId": "CompaniesController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return company details."
+                    },
+                    "404": {
+                        "description": "Company not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get company details by ID",
+                "tags": [
+                    "companies"
+                ]
+            },
+            "patch": {
+                "operationId": "CompaniesController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCompanyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The company has been successfully updated."
+                    },
+                    "404": {
+                        "description": "Company not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update company information",
+                "tags": [
+                    "companies"
+                ]
+            },
+            "delete": {
+                "operationId": "CompaniesController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The company has been successfully deleted."
+                    },
+                    "404": {
+                        "description": "Company not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Soft delete a company",
+                "tags": [
+                    "companies"
+                ]
+            }
+        },
+        "/companies/prepare-lock-liquidity": {
+            "post": {
+                "operationId": "CompaniesController_prepareLockLiquidity",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrepareTransactionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Prepare transaction data for locking company liquidity",
+                "tags": [
+                    "companies"
+                ]
+            }
+        },
+        "/companies/prepare-withdraw-reward": {
+            "post": {
+                "operationId": "CompaniesController_prepareWithdrawReward",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrepareTransactionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Prepare transaction data for withdrawing company rewards",
+                "tags": [
+                    "companies"
+                ]
+            }
+        },
+        "/companies/{id}/preferred-token": {
+            "patch": {
+                "operationId": "CompaniesController_updatePreferredToken",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePreferredTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update company preferred stablecoin and get transaction data",
+                "tags": [
+                    "companies"
+                ]
+            }
+        },
+        "/employees": {
+            "post": {
+                "operationId": "EmployeesController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateEmployeeDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The employee has been successfully created."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires ADMIN or HR role."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Create a new employee record",
+                "tags": [
+                    "employees"
+                ]
+            },
+            "get": {
+                "operationId": "EmployeesController_findAll",
+                "parameters": [
+                    {
+                        "name": "companyId",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filter employees by company UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return list of employees."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List all employees",
+                "tags": [
+                    "employees"
+                ]
+            }
+        },
+        "/employees/{id}": {
+            "get": {
+                "operationId": "EmployeesController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return employee details."
+                    },
+                    "404": {
+                        "description": "Employee not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get employee details by ID",
+                "tags": [
+                    "employees"
+                ]
+            },
+            "patch": {
+                "operationId": "EmployeesController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateEmployeeDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The employee has been successfully updated."
+                    },
+                    "404": {
+                        "description": "Employee not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update employee information",
+                "tags": [
+                    "employees"
+                ]
+            },
+            "delete": {
+                "operationId": "EmployeesController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The employee has been successfully deleted."
+                    },
+                    "404": {
+                        "description": "Employee not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Soft delete an employee record",
+                "tags": [
+                    "employees"
+                ]
+            }
+        },
+        "/employees/me/preferred-token": {
+            "patch": {
+                "operationId": "EmployeesController_updateMePreferredToken",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePreferredTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update preferred stablecoin and get transaction data",
+                "tags": [
+                    "employees"
+                ]
+            }
+        },
+        "/payroll-cycles": {
+            "post": {
+                "operationId": "PayrollCyclesController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePayrollCycleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The payroll cycle has been successfully created."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires ADMIN or HR role."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Create a new payroll cycle",
+                "tags": [
+                    "payroll-cycles"
+                ]
+            },
+            "get": {
+                "operationId": "PayrollCyclesController_findAll",
+                "parameters": [
+                    {
+                        "name": "companyId",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filter payroll cycles by company UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return list of payroll cycles."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List all payroll cycles",
+                "tags": [
+                    "payroll-cycles"
+                ]
+            }
+        },
+        "/payroll-cycles/{id}": {
+            "get": {
+                "operationId": "PayrollCyclesController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return payroll cycle details."
+                    },
+                    "404": {
+                        "description": "Payroll cycle not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get payroll cycle details by ID",
+                "tags": [
+                    "payroll-cycles"
+                ]
+            }
+        },
+        "/worklogs": {
+            "post": {
+                "operationId": "WorklogsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateWorklogDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The work log has been successfully created."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires EMPLOYEE, HR, or ADMIN role."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Submit a new work log entry",
+                "tags": [
+                    "worklogs"
+                ]
+            },
+            "get": {
+                "operationId": "WorklogsController_findAll",
+                "parameters": [
+                    {
+                        "name": "employeeId",
+                        "required": true,
+                        "in": "query",
+                        "description": "Filter logs by employee UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return list of work logs."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List work logs for an employee",
+                "tags": [
+                    "worklogs"
+                ]
+            }
+        },
+        "/worklogs/check-in": {
+            "post": {
+                "operationId": "WorklogsController_checkIn",
+                "parameters": [
+                    {
+                        "name": "payrollCycleId",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Check-in successful."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Employee check-in for the day",
+                "tags": [
+                    "worklogs"
+                ]
+            }
+        },
+        "/worklogs/{id}/check-out": {
+            "post": {
+                "operationId": "WorklogsController_checkOut",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Check-out successful."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Employee check-out for the day",
+                "tags": [
+                    "worklogs"
+                ]
+            }
+        },
+        "/worklogs/{id}/approve": {
+            "patch": {
+                "operationId": "WorklogsController_approve",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The work log has been successfully approved. Returns blockchain sync data."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires HR or ADMIN role."
+                    },
+                    "404": {
+                        "description": "Work log not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Approve a work log entry and get blockchain sync data",
+                "tags": [
+                    "worklogs"
+                ]
+            }
+        },
+        "/withdraws/simulate": {
+            "get": {
+                "operationId": "WithdrawsController_simulate",
+                "parameters": [
+                    {
+                        "name": "employee_id",
+                        "required": true,
+                        "in": "query",
+                        "description": "The UUID of the employee making the withdrawal",
+                        "schema": {
+                            "example": "e-789-uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "payroll_cycle_id",
+                        "required": true,
+                        "in": "query",
+                        "description": "The UUID of the current active payroll cycle",
+                        "schema": {
+                            "example": "pc-012-uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "requested_amount",
+                        "required": true,
+                        "in": "query",
+                        "description": "The amount the employee wants to withdraw",
+                        "schema": {
+                            "example": 1000,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return simulation results."
+                    },
+                    "403": {
+                        "description": "Forbidden. Can only simulate for self."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Simulate withdrawal fees and amounts",
+                "tags": [
+                    "withdraws"
+                ]
+            }
+        },
+        "/withdraws/request": {
+            "post": {
+                "operationId": "WithdrawsController_createRequest",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateWithdrawRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Return transaction data for wallet signing.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. Can only request for self."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Submit a withdrawal request and get transaction data",
+                "tags": [
+                    "withdraws"
+                ]
+            }
+        },
+        "/withdraws/{id}/execute": {
+            "post": {
+                "operationId": "WithdrawsController_execute",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ApproveWithdrawRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The withdrawal has been successfully executed."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires ADMIN role."
+                    },
+                    "404": {
+                        "description": "Withdrawal request not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Approve and execute a withdrawal request",
+                "tags": [
+                    "withdraws"
+                ]
+            }
+        },
+        "/repayments/process-cycle/{cycleId}": {
+            "post": {
+                "operationId": "RepaymentsController_processCycle",
+                "parameters": [
+                    {
+                        "name": "cycleId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The repayments have been successfully processed."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires ADMIN role."
+                    },
+                    "404": {
+                        "description": "Payroll cycle not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Process all pending repayments for a specific payroll cycle",
+                "tags": [
+                    "repayments"
+                ]
+            }
+        },
+        "/repayments/prepare-platform-fee-withdrawal": {
+            "post": {
+                "operationId": "RepaymentsController_preparePlatformFeeWithdrawal",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrepareTransactionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Prepare transaction data for withdrawing platform fees",
+                "tags": [
+                    "repayments"
+                ]
+            }
+        },
+        "/auth/sign-in": {
+            "post": {
+                "operationId": "AuthController_signIn",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login"
+                    },
+                    "401": {
+                        "description": "Invalid signature or user not found"
+                    }
+                },
+                "summary": "Sign in with wallet signature",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/investors": {
+            "post": {
+                "operationId": "InvestorsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateInvestorDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The investor has been successfully created."
+                    },
+                    "403": {
+                        "description": "Forbidden. Requires ADMIN role."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Register a new investor",
+                "tags": [
+                    "investors"
+                ]
+            },
+            "get": {
+                "operationId": "InvestorsController_findAll",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Return all investors."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List all investors",
+                "tags": [
+                    "investors"
+                ]
+            }
+        },
+        "/investors/{id}": {
+            "get": {
+                "operationId": "InvestorsController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return investor details."
+                    },
+                    "404": {
+                        "description": "Investor not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get investor details by ID",
+                "tags": [
+                    "investors"
+                ]
+            },
+            "patch": {
+                "operationId": "InvestorsController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInvestorDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The investor has been successfully updated."
+                    },
+                    "404": {
+                        "description": "Investor not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update investor information",
+                "tags": [
+                    "investors"
+                ]
+            },
+            "delete": {
+                "operationId": "InvestorsController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The company has been successfully deleted."
+                    },
+                    "404": {
+                        "description": "Investor not found."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Soft delete an investor",
+                "tags": [
+                    "investors"
+                ]
+            }
+        },
+        "/investors/prepare-deposit-liquidity": {
+            "post": {
+                "operationId": "InvestorsController_prepareDepositLiquidity",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrepareTransactionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Prepare transaction data for depositing investor liquidity",
+                "tags": [
+                    "investors"
+                ]
+            }
+        },
+        "/investors/prepare-withdraw-reward": {
+            "post": {
+                "operationId": "InvestorsController_prepareWithdrawReward",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrepareTransactionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Prepare transaction data for withdrawing investor rewards",
+                "tags": [
+                    "investors"
+                ]
+            }
+        },
+        "/investors/me/preferred-token": {
+            "patch": {
+                "operationId": "InvestorsController_updateMePreferredToken",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePreferredTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return transaction data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update investor preferred stablecoin and get transaction data",
+                "tags": [
+                    "investors"
+                ]
+            }
+        },
+        "/blockchain/supported-tokens": {
+            "get": {
+                "operationId": "BlockchainController_getSupportedTokens",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Return list of tokens from database."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get list of supported payout stablecoins",
+                "tags": [
+                    "blockchain"
+                ]
+            }
+        },
+        "/blockchain/sync-tokens": {
+            "post": {
+                "operationId": "BlockchainController_syncTokens",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sync completed successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Manually sync supported tokens from blockchain",
+                "tags": [
+                    "blockchain"
+                ]
+            }
+        },
+        "/smart-contracts": {
+            "post": {
+                "operationId": "SmartContractsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSmartContractDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The record has been successfully created."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Create new smart contract metadata",
+                "tags": [
+                    "smart-contracts"
+                ]
+            },
+            "get": {
+                "operationId": "SmartContractsController_findAll",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get all smart contract metadata",
+                "tags": [
+                    "smart-contracts"
+                ]
+            }
+        },
+        "/smart-contracts/{id}": {
+            "get": {
+                "operationId": "SmartContractsController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get smart contract metadata by ID",
+                "tags": [
+                    "smart-contracts"
+                ]
+            },
+            "patch": {
+                "operationId": "SmartContractsController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSmartContractDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Update smart contract metadata",
+                "tags": [
+                    "smart-contracts"
+                ]
+            },
+            "delete": {
+                "operationId": "SmartContractsController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Soft delete smart contract metadata",
+                "tags": [
+                    "smart-contracts"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "GajiKita API",
+        "description": "The GajiKita backend API description",
+        "version": "1.0",
+        "contact": {}
+    },
+    "tags": [
+        {
+            "name": "gaji-kita",
+            "description": ""
+        }
+    ],
+    "servers": [],
+    "components": {
+        "schemas": {
+            "CreateCompanyDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "PT. Teknologi Maju",
+                        "description": "The official name of the company"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "Jl. Merdeka No. 1, Jakarta",
+                        "description": "The physical address of the company"
+                    },
+                    "min_lock_percentage": {
+                        "type": "number",
+                        "example": 30,
+                        "description": "Minimum percentage of total payroll that must be locked in the pool"
+                    },
+                    "fee_share_company": {
+                        "type": "number",
+                        "example": 2000,
+                        "description": "Percentage share for the company from withdrawal fees (in BPS, 2000 = 20%)"
+                    },
+                    "fee_share_platform": {
+                        "type": "number",
+                        "example": 8000,
+                        "description": "Percentage share for the platform from withdrawal fees (in BPS, 8000 = 80%)"
+                    }
+                },
+                "required": [
+                    "name",
+                    "min_lock_percentage",
+                    "fee_share_company",
+                    "fee_share_platform"
+                ]
+            },
+            "UpdateCompanyDto": {
+                "type": "object",
+                "properties": {}
+            },
+            "PrepareTransactionDto": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "example": 1000,
+                        "description": "The amount for the transaction"
+                    },
+                    "cid": {
+                        "type": "string",
+                        "example": "cid-123",
+                        "description": "Context identifier or receipt ID"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "cid"
+                ]
+            },
+            "TransactionResponse": {
+                "type": "object",
+                "properties": {
+                    "to": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "The target contract address"
+                    },
+                    "data": {
+                        "type": "string",
+                        "example": "0x...",
+                        "description": "The encoded function call data (hex)"
+                    },
+                    "value": {
+                        "type": "string",
+                        "example": "0",
+                        "description": "The amount of native currency to send (in wei)"
+                    }
+                },
+                "required": [
+                    "to",
+                    "data"
+                ]
+            },
+            "UpdatePreferredTokenDto": {
+                "type": "object",
+                "properties": {
+                    "token_address": {
+                        "type": "string",
+                        "example": "0x...",
+                        "description": "The address of the preferred stablecoin"
+                    }
+                },
+                "required": [
+                    "token_address"
+                ]
+            },
+            "CreateEmployeeDto": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "example": "u-123-uuid",
+                        "description": "The UUID of the user associated with this employee"
+                    },
+                    "company_id": {
+                        "type": "string",
+                        "example": "c-456-uuid",
+                        "description": "The UUID of the company this employee belongs to"
+                    },
+                    "employee_number": {
+                        "type": "string",
+                        "example": "EMP001",
+                        "description": "Internal employee identification number"
+                    },
+                    "position": {
+                        "type": "string",
+                        "example": "Software Engineer",
+                        "description": "Job title or position"
+                    },
+                    "base_salary": {
+                        "type": "number",
+                        "example": 5000,
+                        "description": "Base monthly salary of the employee"
+                    },
+                    "wallet_address": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "Wallet address for payroll disbursement"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ACTIVE",
+                        "description": "Current employment status"
+                    },
+                    "sbt_token_id": {
+                        "type": "string",
+                        "example": "tokenId-789",
+                        "description": "ID of the Soulbound Token (SBT) assigned to the employee"
+                    },
+                    "employed_started": {
+                        "format": "date-time",
+                        "type": "string",
+                        "example": "2023-01-01",
+                        "description": "Employment start date"
+                    },
+                    "employed_ended": {
+                        "format": "date-time",
+                        "type": "string",
+                        "example": "2025-12-31",
+                        "description": "Employment end date"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "company_id",
+                    "base_salary",
+                    "wallet_address"
+                ]
+            },
+            "UpdateEmployeeDto": {
+                "type": "object",
+                "properties": {}
+            },
+            "CreatePayrollCycleDto": {
+                "type": "object",
+                "properties": {
+                    "company_id": {
+                        "type": "string",
+                        "example": "c-456-uuid",
+                        "description": "The UUID of the company this payroll cycle belongs to"
+                    },
+                    "period_start": {
+                        "type": "string",
+                        "example": "2025-12-01",
+                        "description": "Start date of the payroll period"
+                    },
+                    "period_end": {
+                        "type": "string",
+                        "example": "2025-12-31",
+                        "description": "End date of the payroll period"
+                    },
+                    "payout_date": {
+                        "type": "string",
+                        "example": "2026-01-05",
+                        "description": "Scheduled date for salary disbursement"
+                    },
+                    "total_working_days": {
+                        "type": "number",
+                        "example": 22,
+                        "description": "Total number of working days in this period"
+                    }
+                },
+                "required": [
+                    "company_id",
+                    "period_start",
+                    "period_end",
+                    "payout_date",
+                    "total_working_days"
+                ]
+            },
+            "CreateWorklogDto": {
+                "type": "object",
+                "properties": {
+                    "employee_id": {
+                        "type": "string",
+                        "example": "e-789-uuid",
+                        "description": "The UUID of the employee"
+                    },
+                    "payroll_cycle_id": {
+                        "type": "string",
+                        "example": "pc-012-uuid",
+                        "description": "The UUID of the payroll cycle"
+                    },
+                    "date": {
+                        "type": "string",
+                        "example": "2025-12-25",
+                        "description": "The date worked"
+                    },
+                    "hours_worked": {
+                        "type": "number",
+                        "example": 8,
+                        "description": "Number of hours worked on this date"
+                    }
+                },
+                "required": [
+                    "employee_id",
+                    "payroll_cycle_id",
+                    "date",
+                    "hours_worked"
+                ]
+            },
+            "CreateWithdrawRequestDto": {
+                "type": "object",
+                "properties": {
+                    "employee_id": {
+                        "type": "string",
+                        "example": "e-789-uuid",
+                        "description": "The UUID of the employee submitting the request"
+                    },
+                    "payroll_cycle_id": {
+                        "type": "string",
+                        "example": "pc-012-uuid",
+                        "description": "The UUID of the payroll cycle"
+                    },
+                    "requested_amount": {
+                        "type": "number",
+                        "example": 1000,
+                        "description": "The amount requested for early access"
+                    }
+                },
+                "required": [
+                    "employee_id",
+                    "payroll_cycle_id",
+                    "requested_amount"
+                ]
+            },
+            "ApproveWithdrawRequestDto": {
+                "type": "object",
+                "properties": {
+                    "approved_amount": {
+                        "type": "number",
+                        "example": 1000,
+                        "description": "The final amount approved for withdrawal"
+                    },
+                    "extra_aave_fee": {
+                        "type": "number",
+                        "example": 50,
+                        "description": "Optional extra fee (e.g. for urgent AAVE liquidation)"
+                    }
+                },
+                "required": [
+                    "approved_amount"
+                ]
+            },
+            "SignInDto": {
+                "type": "object",
+                "properties": {
+                    "walletAddress": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "Wallet address of the user"
+                    },
+                    "signature": {
+                        "type": "string",
+                        "example": "0xabc...",
+                        "description": "Signature of the message"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Sign this message to login",
+                        "description": "The signed message"
+                    }
+                },
+                "required": [
+                    "walletAddress",
+                    "signature",
+                    "message"
+                ]
+            },
+            "CreateInvestorDto": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "example": "u-123-uuid",
+                        "description": "The UUID of the user associated with this investor"
+                    },
+                    "wallet_address": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "Wallet address for receiving rewards"
+                    },
+                    "preferred_payout_token": {
+                        "type": "string",
+                        "example": "USDC",
+                        "description": "Preferred token for reward payouts"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "wallet_address"
+                ]
+            },
+            "UpdateInvestorDto": {
+                "type": "object",
+                "properties": {}
+            },
+            "CreateSmartContractDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "GajiKita Main",
+                        "description": "Friendly name of the contract"
+                    },
+                    "contract_address": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "Contract address on the blockchain"
+                    },
+                    "chain_id": {
+                        "type": "number",
+                        "example": 421614,
+                        "description": "Chain ID for the network (e.g., Arbitrum Sepolia)"
+                    },
+                    "abi": {
+                        "type": "object",
+                        "example": [],
+                        "description": "ABI as a JSON object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "contract_address",
+                    "chain_id",
+                    "abi"
+                ]
+            },
+            "UpdateSmartContractDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "GajiKita Main",
+                        "description": "Friendly name of the contract"
+                    },
+                    "contract_address": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "Contract address on the blockchain"
+                    },
+                    "chain_id": {
+                        "type": "number",
+                        "example": 421614,
+                        "description": "Chain ID for the network (e.g., Arbitrum Sepolia)"
+                    },
+                    "abi": {
+                        "type": "object",
+                        "example": [],
+                        "description": "ABI as a JSON object"
+                    }
+                }
+            }
+        }
+    }
+}

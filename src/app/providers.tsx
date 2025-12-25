@@ -2,10 +2,11 @@
 
 import { ReactNode, useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { PrivyProvider } from "@privy-io/react-auth"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as Sonner } from "@/components/ui/sonner"
-import { PrivyProvider } from "@privy-io/react-auth"
+import { AuthProvider } from "@/components/AuthProvider"
 
 interface ProvidersProps {
   children: ReactNode
@@ -17,11 +18,13 @@ export function Providers({ children }: ProvidersProps) {
 
   const baseProviders = (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        {children}
-        <Toaster />
-        <Sonner />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          {children}
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   )
 
@@ -40,12 +43,12 @@ export function Providers({ children }: ProvidersProps) {
       config={{
         appearance: {
           accentColor: "#1f81e0",
-          theme: "dark",
+          theme: "light",
         },
+        loginMethods: ["email"],
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
         },
-        loginMethods: ["email", "wallet"],
       }}
     >
       {baseProviders}
