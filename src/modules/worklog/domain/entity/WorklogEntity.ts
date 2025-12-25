@@ -4,7 +4,10 @@ export type WorklogEntity = {
     payroll_cycle_id: string;
     date: string;
     hours_worked: number;
-    approved_by_id?: string | null;
+    approved: boolean;
+    approved_at?: string | null;
+    approved_by?: string | null;
     created_at: string;
+    updated_at: string;
     deleted: boolean;
 };

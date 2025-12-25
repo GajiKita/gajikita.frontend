@@ -7,6 +7,6 @@ export class SimulateWithdraw implements ISimulateWithdraw {
     constructor(private repository: WithdrawRepository) {}
 
     async execute(request: SimulateWithdrawRequest): Promise<SimulationResponse> {
-        return this.repository.simulate(request);
+        return this.repository.simulateWithdraw(request);
     }
 }

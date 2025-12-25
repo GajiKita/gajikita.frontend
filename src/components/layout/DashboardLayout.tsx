@@ -5,14 +5,10 @@ import { Main } from "./Main"
 
 interface DashboardLayoutProps {
   children: ReactNode
-  role: "hr" | "employee"
-  onRoleChange: (role: "hr" | "employee") => void
 }
 
 export function DashboardLayout({
   children,
-  role,
-  onRoleChange,
 }: Readonly<DashboardLayoutProps>) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [paddingClass, setPaddingClass] = useState("lg:pl-64")
@@ -37,14 +33,12 @@ export function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <Sidebar
-        role={role}
-        onRoleChange={onRoleChange}
         collapsed={sidebarCollapsed}
         onCollapseChange={setSidebarCollapsed}
       />
 
       <div className={`transition-all duration-300 ${paddingClass}`}>
-        <Header role={role} />
+        <Header />
 
         <Main>{children}</Main>
       </div>

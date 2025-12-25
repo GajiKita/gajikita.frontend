@@ -12,7 +12,7 @@ export const useCreatePayrollCycleMutation = (
     const usecase = new CreatePayrollCycle(repository);
 
     return useMutation<PayrollCycleResponse, ApiError, CreatePayrollCycleRequest>({
-        mutationFn: (request) => usecase.execute(request),
+        mutationFn: (request: CreatePayrollCycleRequest) => usecase.execute(request),
         ...options,
     });
 };

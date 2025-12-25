@@ -12,7 +12,7 @@ export const useCreateWithdrawRequestMutation = (
     const usecase = new CreateWithdrawRequest(repository);
 
     return useMutation<TransactionResponse, ApiError, CreateWithdrawRequestDto>({
-        mutationFn: (request) => usecase.execute(request),
+        mutationFn: (request: CreateWithdrawRequestDto) => usecase.execute(request),
         ...options,
     });
 };

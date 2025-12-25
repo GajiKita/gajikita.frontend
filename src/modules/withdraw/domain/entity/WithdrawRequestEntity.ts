@@ -3,10 +3,10 @@ export type WithdrawRequestEntity = {
     employee_id: string;
     payroll_cycle_id: string;
     requested_amount: number;
-    approved_amount?: number | null;
-    fee_total_amount?: number | null;
-    status: string;
-    tx_hash?: string | null;
+    approved_amount: number;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXECUTED';
+    transaction_hash?: string | null;
     created_at: string;
     updated_at: string;
+    deleted: boolean;
 };

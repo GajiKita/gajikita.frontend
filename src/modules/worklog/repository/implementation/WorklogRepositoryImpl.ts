@@ -17,17 +17,17 @@ export class WorklogRepositoryImpl implements WorklogRepository {
         return httpClient.get<WorklogListResponse>(API_ROUTES.worklogs.base, { params: request as any });
     }
 
-    async checkIn(request: CheckInRequest): Promise<void> {
-        return httpClient.post<void>(API_ROUTES.worklogs.checkIn, undefined, {
-            params: request as any
+    async checkIn(request: CheckInRequest): Promise<any> {
+        return httpClient.post<any>(API_ROUTES.worklogs.checkIn, undefined, { 
+            params: { payrollCycleId: request.payrollCycleId } 
         });
     }
 
     async checkOut(id: string): Promise<void> {
-        return httpClient.post<void>(API_ROUTES.worklogs.checkOut(id));
+        return httpClient.post<void>(API_ROUTES.worklogs.checkOut(id), {});
     }
 
-    async approveWorklog(id: string): Promise<TransactionResponse> {
-        return httpClient.patch<TransactionResponse>(API_ROUTES.worklogs.approve(id));
+    async approve(id: string): Promise<TransactionResponse> {
+        return httpClient.patch<TransactionResponse>(API_ROUTES.worklogs.approve(id), {});
     }
 }

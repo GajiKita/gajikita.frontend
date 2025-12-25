@@ -8,7 +8,7 @@ import type { TransactionResponse } from "../../../shared/domain/res/Transaction
 export interface WorklogRepository {
     createWorklog(request: CreateWorklogRequest): Promise<WorklogResponse>;
     getWorklogs(request: GetWorklogsRequest): Promise<WorklogListResponse>;
-    checkIn(request: CheckInRequest): Promise<void>;
-    checkOut(id: string): Promise<void>;
-    approveWorklog(id: string): Promise<TransactionResponse>;
+    checkIn(request: CheckInRequest): Promise<any>; // Response type not specified in API
+    checkOut(id: string): Promise<void>; // Response type not specified in API
+    approve(id: string): Promise<TransactionResponse>;
 }

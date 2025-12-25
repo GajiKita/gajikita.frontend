@@ -1,0 +1,12 @@
+'use client'
+
+import { Suspense } from 'react'
+import LoginPageContent from './page-content'
+
+export default function LoginPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
+  )
+}

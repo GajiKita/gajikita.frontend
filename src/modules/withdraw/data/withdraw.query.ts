@@ -19,7 +19,7 @@ export const useSimulateWithdrawQuery = (
     return useQuery<SimulationResponse, ApiError>({
         queryKey: withdrawQueryKeys.simulate(params),
         queryFn: () => usecase.execute(params),
-        enabled: !!params.employee_id && !!params.payroll_cycle_id && params.requested_amount > 0,
+        enabled: !!(params.employee_id && params.payroll_cycle_id && params.requested_amount),
         ...options,
     });
 };

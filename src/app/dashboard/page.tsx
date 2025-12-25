@@ -1,6 +1,8 @@
+export const dynamic = "force-dynamic"
+
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { getUser } from "@/lib/auth"
+import { getUser } from "@/lib/auth-server"
 
 export default async function DashboardPage() {
   const user = await getUser()

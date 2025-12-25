@@ -14,6 +14,7 @@ import {
   CreditCard,
   TrendingUp,
   Shield,
+  Clock,
   Menu,
   X,
   ChevronDown,
@@ -22,8 +23,6 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 
 interface SidebarProps {
-  role: "hr" | "employee"
-  onRoleChange: (role: "hr" | "employee") => void
   collapsed?: boolean
   onCollapseChange?: (collapsed: boolean) => void
 }
@@ -31,6 +30,9 @@ interface SidebarProps {
 const hrNavItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Users, label: "Karyawan", path: "/employees" },
+  { icon: Building2, label: "Companies", path: "/companies" },
+  { icon: TrendingUp, label: "Investors", path: "/investors" },
+  { icon: Clock, label: "Worklogs", path: "/worklogs" },
   { icon: Wallet, label: "Liquidity", path: "/liquidity" },
   { icon: TrendingUp, label: "Analytics", path: "/analytics" },
   { icon: CreditCard, label: "Payroll Setup", path: "/payroll" },
@@ -45,8 +47,6 @@ const employeeNavItems = [
 ]
 
 export function Sidebar({
-  role,
-  onRoleChange,
   collapsed,
   onCollapseChange,
 }: Readonly<SidebarProps>) {
@@ -57,7 +57,7 @@ export function Sidebar({
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname() ?? "/"
 
-  const navItems = role === "hr" ? hrNavItems : employeeNavItems
+  const navItems = hrNavItems
 
   return (
     <>

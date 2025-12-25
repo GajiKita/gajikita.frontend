@@ -6,6 +6,6 @@ export class ApproveWorklog implements IApproveWorklog {
     constructor(private repository: WorklogRepository) {}
 
     async execute(id: string): Promise<TransactionResponse> {
-        return this.repository.approveWorklog(id);
+        return this.repository.approve(id);
     }
 }

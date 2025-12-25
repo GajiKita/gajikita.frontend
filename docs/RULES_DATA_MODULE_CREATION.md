@@ -1,8 +1,8 @@
-# Panduan Pembuatan Modul Data StoMaTrade Frontend
+# Panduan Pembuatan Modul Data GajiKita Frontend
 
 ## Struktur Umum Modul
 
-Setiap modul data dalam StoMaTrade frontend mengikuti struktur arsitektur clean yang terdiri dari 4 layer utama:
+Setiap modul data dalam GajiKita frontend mengikuti struktur arsitektur clean yang terdiri dari 4 layer utama:
 
 ```
 src/modules/{module-name}/

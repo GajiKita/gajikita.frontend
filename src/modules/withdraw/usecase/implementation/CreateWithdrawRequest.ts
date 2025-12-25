@@ -7,6 +7,6 @@ export class CreateWithdrawRequest implements ICreateWithdrawRequest {
     constructor(private repository: WithdrawRepository) {}
 
     async execute(request: CreateWithdrawRequestDto): Promise<TransactionResponse> {
-        return this.repository.createRequest(request);
+        return this.repository.createWithdrawRequest(request);
     }
 }

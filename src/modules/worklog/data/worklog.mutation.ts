@@ -17,19 +17,19 @@ export const useCreateWorklogMutation = (
     const usecase = new CreateWorklog(repository);
 
     return useMutation<WorklogResponse, ApiError, CreateWorklogRequest>({
-        mutationFn: (request) => usecase.execute(request),
+        mutationFn: (request: CreateWorklogRequest) => usecase.execute(request),
         ...options,
     });
 };
 
 export const useCheckInMutation = (
-    options?: UseMutationOptions<void, ApiError, CheckInRequest>
+    options?: UseMutationOptions<any, ApiError, CheckInRequest>
 ) => {
     const repository = new WorklogRepositoryImpl();
     const usecase = new CheckIn(repository);
 
-    return useMutation<void, ApiError, CheckInRequest>({
-        mutationFn: (request) => usecase.execute(request),
+    return useMutation<any, ApiError, CheckInRequest>({
+        mutationFn: (request: CheckInRequest) => usecase.execute(request),
         ...options,
     });
 };
@@ -41,7 +41,7 @@ export const useCheckOutMutation = (
     const usecase = new CheckOut(repository);
 
     return useMutation<void, ApiError, string>({
-        mutationFn: (id) => usecase.execute(id),
+        mutationFn: (id: string) => usecase.execute(id),
         ...options,
     });
 };
@@ -53,7 +53,7 @@ export const useApproveWorklogMutation = (
     const usecase = new ApproveWorklog(repository);
 
     return useMutation<TransactionResponse, ApiError, string>({
-        mutationFn: (id) => usecase.execute(id),
+        mutationFn: (id: string) => usecase.execute(id),
         ...options,
     });
 };

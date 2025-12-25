@@ -12,11 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
-interface HeaderProps {
-  role: "hr" | "employee";
-}
-
-export function Header({ role }: HeaderProps) {
+export function Header() {
   return (
     <header className="h-20 bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-30 px-6 flex items-center justify-between gap-4">
       {/* Left Section - Search */}
@@ -32,19 +28,17 @@ export function Header({ role }: HeaderProps) {
 
       {/* Right Section */}
       <div className="flex items-center gap-3">
-        {/* Quick Actions - HR Only */}
-        {role === "hr" && (
-          <div className="hidden md:flex items-center gap-2">
-            <Button variant="soft" size="sm" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Tambah Karyawan
-            </Button>
-            <Button variant="ghost" size="sm" className="gap-2">
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-          </div>
-        )}
+        {/* Quick Actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <Button variant="soft" size="sm" className="gap-2">
+            <Plus className="w-4 h-4" />
+            Tambah Karyawan
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+        </div>
 
         {/* Notifications */}
         <DropdownMenu>
