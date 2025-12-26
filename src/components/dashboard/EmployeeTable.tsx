@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -87,7 +88,7 @@ export function EmployeeTable() {
             {isLoading ? (
               // Loading skeleton
               Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index}>
+                <TableRow key={`skeleton-${index}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Skeleton className="h-10 w-10 rounded-full" />
@@ -113,98 +114,7 @@ export function EmployeeTable() {
               </TableRow>
             ) : (
               employees.map((employee: EmployeeEntity, index: number) => (
-                <TableRow
-                  key={employee.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.id}`}
-                        />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                          {employee.user_id.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{employee.user_id}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {employee.position || '-'}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {formatCurrency(employee.base_salary || 0)}
-                  </TableCell>
-                  <TableCell className="font-medium text-success">
-                    {formatCurrency(employee.base_salary ? employee.base_salary * 0.3 : 0)} {/* Assuming 30% withdrawable */}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {formatCurrency(0)} {/* Placeholder for withdrawn amount */}
-                      </span>
-                      {0 > 0 && (
-                        <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-primary rounded-full"
-                            style={{
-                              width: `${0}%`, /* Placeholder for withdrawn percentage */
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="font-semibold">
-                      30% {/* Placeholder for limit */}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className={cn(
-                        "gap-1 font-medium",
-                        employee.status === "active"
-                          ? "bg-success/10 text-success hover:bg-success/20"
-                          : "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                      )}
-                    >
-                      {employee.status === "active" ? (
-                        <Shield className="w-3 h-3" />
-                      ) : (
-                        <ShieldOff className="w-3 h-3" />
-                      )}
-                      {employee.status === "active" ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="gap-2">
-                          <Eye className="w-4 h-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
-                          <Edit className="w-4 h-4" />
-                          Adjust Limit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 text-destructive">
-                          <ShieldOff className="w-4 h-4" />
-                          Revoke SBT
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                <EmployeeRow key={employee.id} employee={employee} index={index} />
               ))
             )}
           </TableBody>
@@ -213,3 +123,102 @@ export function EmployeeTable() {
     </div>
   );
 }
+
+interface EmployeeRowProps {
+  employee: EmployeeEntity;
+  index: number;
+}
+
+const EmployeeRow = React.memo(({ employee, index }: EmployeeRowProps) => (
+  <TableRow
+    className="animate-fade-in"
+    style={{ animationDelay: `${index * 50}ms` }}
+  >
+    <TableCell>
+      <div className="flex items-center gap-3">
+        <Avatar className="h-10 w-10">
+          <AvatarImage
+            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.id}`}
+          />
+          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+            {employee.user_id.substring(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="font-medium">{employee.user_id}</p>
+          <p className="text-sm text-muted-foreground">
+            {employee.position || '-'}
+          </p>
+        </div>
+      </div>
+    </TableCell>
+    <TableCell className="font-medium">
+      {formatCurrency(employee.base_salary || 0)}
+    </TableCell>
+    <TableCell className="font-medium text-success">
+      {formatCurrency(employee.base_salary ? employee.base_salary * 0.3 : 0)} {/* Assuming 30% withdrawable */}
+    </TableCell>
+    <TableCell>
+      <div className="flex items-center gap-2">
+        <span className="font-medium">
+          {formatCurrency(0)} {/* Placeholder for withdrawn amount */}
+        </span>
+        {0 > 0 && (
+          <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-primary rounded-full"
+              style={{
+                width: `${0}%`, /* Placeholder for withdrawn percentage */
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </TableCell>
+    <TableCell>
+      <Badge variant="secondary" className="font-semibold">
+        30% {/* Placeholder for limit */}
+      </Badge>
+    </TableCell>
+    <TableCell>
+      <Badge
+        className={cn(
+          "gap-1 font-medium",
+          employee.status === "active"
+            ? "bg-success/10 text-success hover:bg-success/20"
+            : "bg-destructive/10 text-destructive hover:bg-destructive/20"
+        )}
+      >
+        {employee.status === "active" ? (
+          <Shield className="w-3 h-3" />
+        ) : (
+          <ShieldOff className="w-3 h-3" />
+        )}
+        {employee.status === "active" ? "Active" : "Inactive"}
+      </Badge>
+    </TableCell>
+    <TableCell>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem className="gap-2">
+            <Eye className="w-4 h-4" />
+            View Details
+          </DropdownMenuItem>
+          <DropdownMenuItem className="gap-2">
+            <Edit className="w-4 h-4" />
+            Adjust Limit
+          </DropdownMenuItem>
+          <DropdownMenuItem className="gap-2 text-destructive">
+            <ShieldOff className="w-4 h-4" />
+            Revoke SBT
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </TableCell>
+  </TableRow>
+));

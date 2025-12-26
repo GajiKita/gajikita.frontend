@@ -13,7 +13,21 @@ interface ProvidersProps {
 }
 
 export function Providers({ children }: ProvidersProps) {
-  const [queryClient] = useState(() => new QueryClient())
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 2, // 2 minutes (was 5)
+        gcTime: 1000 * 60 * 5, // 5 minutes (was 10)
+        retry: 1,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Reduced max retry delay
+        refetchOnWindowFocus: false, // Disable auto refetch on window focus
+        refetchOnReconnect: false, // Disable auto refetch on reconnect
+      },
+      mutations: {
+        retry: 0, // Reduce mutation retries to speed up failure detection
+      },
+    },
+  }))
   const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
 
   const baseProviders = (

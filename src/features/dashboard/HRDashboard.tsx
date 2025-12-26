@@ -1,10 +1,11 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import { Users, Wallet, Zap, Coins, TrendingUp, ArrowUpRight } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { EmployeeTable } from "@/components/dashboard/EmployeeTable";
 import { AdvanceTrendChart, LiquidityChart, RevenueShareChart } from "@/components/dashboard/AnalyticsCharts";
 import { LiquidityCard } from "@/components/dashboard/LiquidityCard";
+import { EmployeeTable } from "@/components/dashboard/EmployeeTable";
 
 export default function HRDashboard() {
   return (
@@ -59,20 +60,30 @@ export default function HRDashboard() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AdvanceTrendChart />
-        <LiquidityChart />
+        <Suspense fallback={<div className="h-80 bg-muted rounded-xl animate-pulse" />}>
+          <AdvanceTrendChart />
+        </Suspense>
+        <Suspense fallback={<div className="h-80 bg-muted rounded-xl animate-pulse" />}>
+          <LiquidityChart />
+        </Suspense>
       </div>
 
       {/* Liquidity & Revenue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <LiquidityCard />
+          <Suspense fallback={<div className="h-80 bg-muted rounded-xl animate-pulse" />}>
+            <LiquidityCard />
+          </Suspense>
         </div>
-        <RevenueShareChart />
+        <Suspense fallback={<div className="h-80 bg-muted rounded-xl animate-pulse" />}>
+          <RevenueShareChart />
+        </Suspense>
       </div>
 
       {/* Employee Table */}
-      <EmployeeTable />
+      <Suspense fallback={<div className="bg-muted rounded-xl h-96 animate-pulse" />}>
+        <EmployeeTable />
+      </Suspense>
     </div>
   );
 }

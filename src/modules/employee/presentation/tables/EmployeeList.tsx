@@ -34,12 +34,13 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({ companyId }) => {
 
   return (
     <div className="w-full">
-      <DataTable 
-        columns={EmployeeColumns} 
-        data={employees} 
+      <DataTable
+        columns={EmployeeColumns}
+        data={employees}
         loading={isLoading}
         enableSearch={true}
         enableFilter={true}
+        searchField="user_id"  // Use a field that exists in EmployeeEntity
       />
     </div>
   );

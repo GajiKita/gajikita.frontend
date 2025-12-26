@@ -23,6 +23,11 @@ export const useEmployeesQuery = (
     return useQuery<EmployeeListResponse, ApiError>({
         queryKey: employeeQueryKeys.list(params),
         queryFn: () => usecase.execute(params),
+        staleTime: 1000 * 60 * 2, // 2 minutes
+        gcTime: 1000 * 60 * 5,  // 5 minutes
+        retry: 1,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+        refetchOnWindowFocus: false,
         ...options,
     });
 };
