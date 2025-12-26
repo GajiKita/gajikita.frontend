@@ -95,10 +95,10 @@ export function Header() {
               </Avatar>
               <div className="hidden md:block text-left">
                 <p className="text-sm font-semibold">
-                  {role === "hr" ? "PT. TechIndo Global" : "Ahmad Rizki"}
+                  User Name
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {role === "hr" ? "HR Administrator" : "Software Engineer"}
+                  User Role
                 </p>
               </div>
             </button>

@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState("6m");
 
   return (
-    <DashboardLayout role={role} onRoleChange={setRole}>
+    <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

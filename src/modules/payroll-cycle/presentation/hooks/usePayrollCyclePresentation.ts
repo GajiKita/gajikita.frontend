@@ -1,4 +1,5 @@
-import { usePayrollCyclesQuery, usePayrollCycleQuery, useCreatePayrollCycleMutation } from '../../data/payroll-cycle.query';
+import { usePayrollCyclesQuery, usePayrollCycleQuery } from '../../data/payroll-cycle.query';
+import { useCreatePayrollCycleMutation } from '../../data/payroll-cycle.mutation';
 import { PayrollCycleEntity } from '../../domain/entity/PayrollCycleEntity';
 import { CreatePayrollCycleRequest } from '../../domain/req/CreatePayrollCycleRequest';
 

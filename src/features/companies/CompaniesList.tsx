@@ -26,7 +26,7 @@ export function CompaniesList() {
   const [searchTerm, setSearchTerm] = useState('');
   const { data: companiesData, isLoading, error } = useCompaniesQuery();
 
-  const companies = companiesData?.companies || [];
+  const companies = companiesData || [];
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -1,5 +1,5 @@
 import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
-import { RepaymentsRepositoryImpl } from "../repository/implementation/RepaymentsRepositoryImpl";
+import { RepaymentsRepositoryImpl } from "../repository/implementation/RepaymentRepositoryImpl";
 import { ProcessCycle } from "../usecase/implementation/ProcessCycle";
 import { PreparePlatformFeeWithdrawal } from "../usecase/implementation/PreparePlatformFeeWithdrawal";
 import type { ProcessCycleRequest } from "../domain/req/ProcessCycleRequest";

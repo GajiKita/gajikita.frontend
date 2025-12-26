@@ -1,3 +1,5 @@
+'use client'
+
 import { ReactNode, useEffect, useState } from "react"
 import { Sidebar } from "./Sidebar"
 import { Header } from "./Header"
@@ -5,10 +7,14 @@ import { Main } from "./Main"
 
 interface DashboardLayoutProps {
   children: ReactNode
+  role?: "hr" | "employee";
+  onRoleChange?: (role: "hr" | "employee") => void;
 }
 
 export function DashboardLayout({
   children,
+  role,
+  onRoleChange,
 }: Readonly<DashboardLayoutProps>) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [paddingClass, setPaddingClass] = useState("lg:pl-64")

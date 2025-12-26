@@ -26,7 +26,7 @@ export function InvestorsList() {
   const [searchTerm, setSearchTerm] = useState('');
   const { data: investorsData, isLoading, error } = useInvestorsQuery();
 
-  const investors = investorsData?.investors || [];
+  const investors = investorsData?.data || [];
 
   const filteredInvestors = investors.filter(investor =>
     investor.wallet_address.toLowerCase().includes(searchTerm.toLowerCase())

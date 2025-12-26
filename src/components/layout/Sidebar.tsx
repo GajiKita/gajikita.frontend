@@ -25,6 +25,8 @@ import Image from "next/image"
 interface SidebarProps {
   collapsed?: boolean
   onCollapseChange?: (collapsed: boolean) => void
+  role?: "hr" | "employee";
+  onRoleChange?: (role: "hr" | "employee") => void;
 }
 
 const hrNavItems = [
@@ -49,6 +51,8 @@ const employeeNavItems = [
 export function Sidebar({
   collapsed,
   onCollapseChange,
+  role = "hr",
+  onRoleChange,
 }: Readonly<SidebarProps>) {
   const controlledCollapsed = collapsed ?? false
   const setCollapsed = (value: boolean) => {
@@ -57,7 +61,7 @@ export function Sidebar({
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname() ?? "/"
 
-  const navItems = hrNavItems
+  const navItems = role === "hr" ? hrNavItems : employeeNavItems
 
   return (
     <>
@@ -113,7 +117,7 @@ export function Sidebar({
         {/* Role Switcher */}
         <div className="px-4 py-4 border-b border-sidebar-border">
           <button
-            onClick={() => onRoleChange(role === "hr" ? "employee" : "hr")}
+            onClick={() => onRoleChange?.(role === "hr" ? "employee" : "hr")}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
               "bg-sidebar-accent hover:bg-sidebar-accent/80"

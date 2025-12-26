@@ -1,4 +1,4 @@
-import type { RepaymentsRepository } from "../../repository/interface/RepaymentsRepository";
+import type { RepaymentsRepository } from "../../repository/interface/RepaymentRepository";
 import type { ProcessCycleRequest } from "../../domain/req/ProcessCycleRequest";
 import type { ProcessCycleResponse } from "../../domain/res/ProcessCycleResponse";
 import type { IProcessCycle } from "../interface/IProcessCycle";

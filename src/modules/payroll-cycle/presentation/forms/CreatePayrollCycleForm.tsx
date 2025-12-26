@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { DatePicker } from '@/components/ui/date-picker';
 import { useCreatePayrollCyclePresentation } from '../hooks/usePayrollCyclePresentation';
 import { PayrollCycleEntity } from '../../domain/entity/PayrollCycleEntity';
 
@@ -48,7 +47,7 @@ export function CreatePayrollCycleForm({ companyId, onSuccess, onCancel }: Creat
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     createPayrollCycle(values, {
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
         if (onSuccess) onSuccess(data.data);
         form.reset();
       },

@@ -35,19 +35,20 @@ export function WorklogsList() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: employeesData } = useEmployeesQuery();
-  const employees = employeesData?.employees || [];
+  const employees = employeesData || [];
 
   const { data: worklogsData, isLoading, error } = useWorklogsQuery(
     { employeeId: selectedEmployeeId },
     { enabled: !!selectedEmployeeId }
   );
 
-  const worklogs = worklogsData?.worklogs || [];
+  const worklogs = worklogsData?.data || [];
 
   const filteredWorklogs = worklogs.filter(worklog => {
     if (!searchTerm) return true;
     const employee = employees.find(e => e.id === worklog.employee_id);
-    return employee?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return employee?.employee_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           employee?.user_id.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const selectedEmployee = employees.find(e => e.id === selectedEmployeeId);
@@ -72,7 +73,7 @@ export function WorklogsList() {
                 <SelectContent>
                   {employees.map((employee) => (
                     <SelectItem key={employee.id} value={employee.id}>
-                      {employee.name} - {employee.position}
+                      {employee.user_id} - {employee.position}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -96,7 +97,7 @@ export function WorklogsList() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
-            Worklogs - {selectedEmployee?.name}
+            Worklogs - {selectedEmployee?.user_id}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -116,7 +117,7 @@ export function WorklogsList() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
-            Worklogs - {selectedEmployee?.name}
+            Worklogs - {selectedEmployee?.user_id}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -136,7 +137,7 @@ export function WorklogsList() {
         <div className="flex justify-between items-center">
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
-            Worklogs - {selectedEmployee?.name}
+            Worklogs - {selectedEmployee?.user_id}
           </CardTitle>
           <Button
             variant="outline"

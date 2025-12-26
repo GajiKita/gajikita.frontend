@@ -1,3 +1,5 @@
+'use client';
+
 import { Users, Wallet, Zap, Coins, TrendingUp, ArrowUpRight } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { EmployeeTable } from "@/components/dashboard/EmployeeTable";
