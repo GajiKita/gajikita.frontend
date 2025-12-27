@@ -1,13 +1,15 @@
 // Smart Contract Presentation Layer Export
 // Components
+export { SmartContractsList } from './components/SmartContractsList';
+
+// Forms
+export { CreateSmartContractForm } from './forms/CreateSmartContractForm';
 
 // Hooks
-export {
-  useSmartContractListPresentation,
+export { 
+  useSmartContractsPresentation,
   useSmartContractDetailPresentation,
   useCreateSmartContractPresentation,
   useUpdateSmartContractPresentation,
-  useDeleteSmartContractPresentation,
+  useDeleteSmartContractPresentation
 } from './hooks/useSmartContractPresentation';
-
-// Forms

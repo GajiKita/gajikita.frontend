@@ -1,183 +1,231 @@
-// src/modules/smart-contract/presentation/__tests__/hooks/useSmartContractPresentation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useSmartContractListPresentation, useSmartContractDetailPresentation, useCreateSmartContractPresentation, useUpdateSmartContractPresentation, useDeleteSmartContractPresentation } from '../../hooks/useSmartContractPresentation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import {
+  useSmartContractsPresentation,
+  useSmartContractDetailPresentation,
+  useCreateSmartContractPresentation,
+  useUpdateSmartContractPresentation,
+  useDeleteSmartContractPresentation
+} from '../../hooks/useSmartContractPresentation';
+import { SmartContractRepositoryImpl } from '../../../repository/implementation/SmartContractRepositoryImpl';
 
-// Mock the data layer hooks
-jest.mock('../../hooks/useSmartContractPresentation', () => ({
-  ...jest.requireActual('../../hooks/useSmartContractPresentation'),
-  useSmartContractListPresentation: jest.fn(),
-  useSmartContractDetailPresentation: jest.fn(),
-  useCreateSmartContractPresentation: jest.fn(),
-  useUpdateSmartContractPresentation: jest.fn(),
-  useDeleteSmartContractPresentation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../../repository/implementation/SmartContractRepositoryImpl');
 
-describe('Smart Contract Presentation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Smart Contract Presentation Hooks Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
-  describe('useSmartContractListPresentation', () => {
-    it('should return formatted smart contract data', () => {
-      // Arrange
-      const mockParams = { page: 1, limit: 10 };
-      const mockData = {
-        smartContracts: [
+  describe('useSmartContractsPresentation', () => {
+    it('should return correct values', async () => {
+      const mockResponse = {
+        smart_contracts: [
           {
-            id: '1',
-            name: 'Payroll Contract',
-            address: '0x1234567890123456789012345678901234567890',
-            abi: '{}',
-            bytecode: '0x...',
-            deployed_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            deleted: false,
-          }
+            id: 'sc-123',
+            name: 'GajiKita Main',
+            contract_address: '0x123...',
+            chain_id: 421614,
+            abi: {},
+            created_at: '2025-01-15T10:00:00Z',
+            updated_at: '2025-01-15T10:00:00Z',
+          },
         ],
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 1,
-          totalPages: 1,
-        },
       };
 
-      (useSmartContractListPresentation as jest.MockedFunction<typeof useSmartContractListPresentation>).mockReturnValue(mockData);
+      const mockRepository = {
+        getSmartContracts: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as SmartContractRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSmartContractListPresentation(mockParams));
+      (SmartContractRepositoryImpl as jest.MockedClass<typeof SmartContractRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.smartContracts).toEqual(mockData.smartContracts);
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isError).toBe(false);
+      const { result } = renderHook(
+        () => useSmartContractsPresentation(),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.smartContracts).toEqual(mockResponse.smart_contracts);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+        expect(typeof result.current.refetch).toBe('function');
+      });
+
+      expect(mockRepository.getSmartContracts).toHaveBeenCalled();
     });
 
-    it('should handle error states', () => {
-      // Arrange
-      const mockErrorData = {
-        smartContracts: [],
-        isLoading: false,
-        isError: true,
-        error: new Error('API Error'),
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalPages: 0,
-        },
-      };
+    it('should handle error when fetching smart contracts', async () => {
+      const mockError = new Error('Failed to fetch smart contracts');
 
-      (useSmartContractListPresentation as jest.MockedFunction<typeof useSmartContractListPresentation>).mockReturnValue(mockErrorData);
+      const mockRepository = {
+        getSmartContracts: jest.fn().mockRejectedValue(mockError),
+      } as unknown as SmartContractRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSmartContractListPresentation({ page: 1, limit: 10 }));
+      (SmartContractRepositoryImpl as jest.MockedClass<typeof SmartContractRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      const { result } = renderHook(
+        () => useSmartContractsPresentation(),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
   describe('useSmartContractDetailPresentation', () => {
-    it('should return smart contract detail', () => {
-      // Arrange
-      const contractId = '1';
-      const mockData = {
-        smartContract: {
-          id: '1',
-          name: 'Payroll Contract',
-          address: '0x1234567890123456789012345678901234567890',
-          abi: '{}',
-          bytecode: '0x...',
-          deployed_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-01T00:00:00Z',
-          deleted: false,
-        },
-        isLoading: false,
-        isError: false,
-        error: undefined,
+    it('should return correct values', async () => {
+      const mockId = 'sc-123';
+      const mockResponse = {
+        id: 'sc-123',
+        name: 'GajiKita Main',
+        contract_address: '0x123...',
+        chain_id: 421614,
+        abi: {},
+        created_at: '2025-01-15T10:00:00Z',
+        updated_at: '2025-01-15T10:00:00Z',
       };
 
-      (useSmartContractDetailPresentation as jest.MockedFunction<typeof useSmartContractDetailPresentation>).mockReturnValue(mockData);
+      const mockRepository = {
+        getSmartContractById: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as SmartContractRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSmartContractDetailPresentation(contractId));
+      (SmartContractRepositoryImpl as jest.MockedClass<typeof SmartContractRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.smartContract).toEqual(mockData.smartContract);
-      expect(result.current.isLoading).toBe(false);
+      const { result } = renderHook(
+        () => useSmartContractDetailPresentation(mockId),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.smartContract).toEqual(mockResponse);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+      });
+
+      expect(mockRepository.getSmartContractById).toHaveBeenCalledWith({ id: mockId });
     });
   });
 
   describe('useCreateSmartContractPresentation', () => {
-    it('should return create function', () => {
-      // Arrange
-      const mockMutationResult = {
-        createSmartContract: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
+    it('should return correct values', async () => {
+      const mockRequest = {
+        name: 'New Contract',
+        contract_address: '0x456...',
+        chain_id: 421614,
+        abi: {},
+      };
+      const mockResponse = {
+        id: 'sc-456',
+        ...mockRequest,
+        created_at: '2025-01-15T10:00:00Z',
+        updated_at: '2025-01-15T10:00:00Z',
       };
 
-      (useCreateSmartContractPresentation as jest.MockedFunction<typeof useCreateSmartContractPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        createSmartContract: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as SmartContractRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useCreateSmartContractPresentation());
+      (SmartContractRepositoryImpl as jest.MockedClass<typeof SmartContractRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.createSmartContract).toBeDefined();
-      expect(typeof result.current.createSmartContract).toBe('function');
+      const { result } = renderHook(
+        () => useCreateSmartContractPresentation(),
+        { wrapper }
+      );
+
+      result.current.createSmartContract(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.createSmartContract).toHaveBeenCalledWith(mockRequest);
     });
   });
 
   describe('useUpdateSmartContractPresentation', () => {
-    it('should return update function', () => {
-      // Arrange
-      const mockMutationResult = {
-        updateSmartContract: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
+    it('should return correct values', async () => {
+      const mockId = 'sc-123';
+      const mockRequest = {
+        name: 'Updated Contract',
+        contract_address: '0x789...',
+        chain_id: 421614,
+        abi: {},
+      };
+      const mockResponse = {
+        id: 'sc-123',
+        ...mockRequest,
+        created_at: '2025-01-15T10:00:00Z',
+        updated_at: '2025-01-15T11:00:00Z',
       };
 
-      (useUpdateSmartContractPresentation as jest.MockedFunction<typeof useUpdateSmartContractPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        updateSmartContract: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as SmartContractRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useUpdateSmartContractPresentation());
+      (SmartContractRepositoryImpl as jest.MockedClass<typeof SmartContractRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.updateSmartContract).toBeDefined();
-      expect(typeof result.current.updateSmartContract).toBe('function');
+      const { result } = renderHook(
+        () => useUpdateSmartContractPresentation(),
+        { wrapper }
+      );
+
+      result.current.updateSmartContract({ id: mockId, ...mockRequest });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.updateSmartContract).toHaveBeenCalledWith({ id: mockId, ...mockRequest });
     });
   });
 
   describe('useDeleteSmartContractPresentation', () => {
-    it('should return delete function', () => {
-      // Arrange
-      const mockMutationResult = {
-        deleteSmartContract: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
+    it('should return correct values', async () => {
+      const mockId = 'sc-123';
 
-      (useDeleteSmartContractPresentation as jest.MockedFunction<typeof useDeleteSmartContractPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        deleteSmartContract: jest.fn().mockResolvedValue(undefined),
+      } as unknown as SmartContractRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useDeleteSmartContractPresentation());
+      (SmartContractRepositoryImpl as jest.MockedClass<typeof SmartContractRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.deleteSmartContract).toBeDefined();
-      expect(typeof result.current.deleteSmartContract).toBe('function');
+      const { result } = renderHook(
+        () => useDeleteSmartContractPresentation(),
+        { wrapper }
+      );
+
+      result.current.deleteSmartContract(mockId);
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockRepository.deleteSmartContract).toHaveBeenCalledWith(mockId);
     });
   });
 });

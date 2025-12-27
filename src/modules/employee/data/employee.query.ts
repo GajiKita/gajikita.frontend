@@ -10,6 +10,8 @@ import { ApiError } from "@/core/utils/http/httpClient";
 
 export const employeeQueryKeys = {
     list: (params: GetEmployeesRequest) => ['employees', 'list', params] as const,
+    byCompany: (companyId: string) => ['employees', 'by-company', companyId] as const,
+    byMyCompany: () => ['employees', 'by-my-company'] as const,
     detail: (id: string) => ['employees', 'detail', id] as const,
 };
 
@@ -28,6 +30,34 @@ export const useEmployeesQuery = (
         retry: 1,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
         refetchOnWindowFocus: false,
+        ...options,
+    });
+};
+
+export const useEmployeesByCompanyQuery = (
+    companyId: string,
+    options?: Omit<UseQueryOptions<EmployeeListResponse, ApiError>, 'queryKey' | 'queryFn'>
+) => {
+    const repository = new EmployeeRepositoryImpl();
+    const usecase = new GetEmployees(repository);
+
+    return useQuery<EmployeeListResponse, ApiError>({
+        queryKey: employeeQueryKeys.byCompany(companyId),
+        queryFn: () => usecase.execute({ companyId }),
+        enabled: !!companyId,
+        ...options,
+    });
+};
+
+export const useEmployeesByMyCompanyQuery = (
+    options?: Omit<UseQueryOptions<EmployeeListResponse, ApiError>, 'queryKey' | 'queryFn'>
+) => {
+    const repository = new EmployeeRepositoryImpl();
+    const usecase = new GetEmployees(repository);
+
+    return useQuery<EmployeeListResponse, ApiError>({
+        queryKey: employeeQueryKeys.byMyCompany(),
+        queryFn: () => usecase.execute({}),
         ...options,
     });
 };

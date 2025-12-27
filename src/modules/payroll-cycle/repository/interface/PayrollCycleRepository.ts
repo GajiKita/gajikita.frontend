@@ -1,4 +1,5 @@
 import type { CreatePayrollCycleRequest } from "../../domain/req/CreatePayrollCycleRequest";
+import type { UpdatePayrollCycleRequest } from "../../domain/req/UpdatePayrollCycleRequest";
 import type { GetPayrollCyclesRequest } from "../../domain/req/GetPayrollCyclesRequest";
 import type { GetPayrollCycleByIdRequest } from "../../domain/req/GetPayrollCycleByIdRequest";
 import type { PayrollCycleResponse } from "../../domain/res/PayrollCycleResponse";
@@ -8,4 +9,6 @@ export interface PayrollCycleRepository {
     createPayrollCycle(request: CreatePayrollCycleRequest): Promise<PayrollCycleResponse>;
     getPayrollCycles(request: GetPayrollCyclesRequest): Promise<PayrollCycleListResponse>;
     getPayrollCycleById(request: GetPayrollCycleByIdRequest): Promise<PayrollCycleResponse>;
+    updatePayrollCycle(request: UpdatePayrollCycleRequest): Promise<PayrollCycleResponse>;
+    deletePayrollCycle(id: string): Promise<void>;
 }

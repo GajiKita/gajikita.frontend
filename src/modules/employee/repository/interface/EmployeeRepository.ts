@@ -10,6 +10,8 @@ import type { TransactionResponse } from "../../../shared/domain/res/Transaction
 export interface EmployeeRepository {
     createEmployee(request: CreateEmployeeRequest): Promise<EmployeeResponse>;
     getEmployees(request: GetEmployeesRequest): Promise<EmployeeListResponse>;
+    getEmployeesByCompany(companyId: string): Promise<EmployeeListResponse>;
+    getEmployeesByMyCompany(): Promise<EmployeeListResponse>;
     getEmployeeById(request: GetEmployeeByIdRequest): Promise<EmployeeResponse>;
     updateEmployee(request: UpdateEmployeeRequest): Promise<EmployeeResponse>;
     deleteEmployee(id: string): Promise<void>;

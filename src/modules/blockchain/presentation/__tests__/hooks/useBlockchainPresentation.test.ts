@@ -1,158 +1,143 @@
-// src/modules/blockchain/presentation/__tests__/hooks/useBlockchainPresentation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useSupportedTokensPresentation, useSyncTokensPresentation } from '../../hooks/useBlockchainPresentation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import {
+  useSupportedTokensPresentation,
+  useSyncTokensPresentation
+} from '../../hooks/useBlockchainPresentation';
+import { BlockchainRepositoryImpl } from '../../../repository/implementation/BlockchainRepositoryImpl';
 
-// Mock the data layer hooks
-jest.mock('../../hooks/useBlockchainPresentation', () => ({
-  ...jest.requireActual('../../hooks/useBlockchainPresentation'),
-  useSupportedTokensPresentation: jest.fn(),
-  useSyncTokensPresentation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../../repository/implementation/BlockchainRepositoryImpl');
 
-describe('Blockchain Presentation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Blockchain Presentation Hooks Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
   describe('useSupportedTokensPresentation', () => {
-    it('should return formatted token data', () => {
-      // Arrange
-      const mockParams = {};
-      const mockData = {
+    it('should return correct values', async () => {
+      const mockResponse = {
         tokens: [
           {
-            id: '1',
-            symbol: 'ETH',
-            name: 'Ethereum',
-            decimals: 18,
-            chain_id: 1,
-            address: '0x0000000000000000000000000000000000000000',
-            logo_uri: 'https://example.com/eth-logo.png',
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            deleted: false,
-          }
+            id: 'tk-123',
+            name: 'USDC',
+            symbol: 'USDC',
+            address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            chain_id: 421614,
+            decimals: 6,
+            is_active: true,
+          },
         ],
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
       };
 
-      (useSupportedTokensPresentation as jest.MockedFunction<typeof useSupportedTokensPresentation>).mockReturnValue(mockData);
+      const mockRepository = {
+        getSupportedTokens: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as BlockchainRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSupportedTokensPresentation(mockParams));
+      (BlockchainRepositoryImpl as jest.MockedClass<typeof BlockchainRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.tokens).toEqual(mockData.tokens);
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isError).toBe(false);
+      const { result } = renderHook(
+        () => useSupportedTokensPresentation(),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.tokens).toEqual(mockResponse.tokens);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+        expect(typeof result.current.refetch).toBe('function');
+      });
+
+      expect(mockRepository.getSupportedTokens).toHaveBeenCalled();
     });
 
-    it('should handle error states', () => {
-      // Arrange
-      const mockErrorData = {
-        tokens: [],
-        isLoading: false,
-        isError: true,
-        error: new Error('API Error'),
-        refetch: jest.fn(),
-      };
+    it('should handle error when fetching supported tokens', async () => {
+      const mockError = new Error('Failed to fetch supported tokens');
 
-      (useSupportedTokensPresentation as jest.MockedFunction<typeof useSupportedTokensPresentation>).mockReturnValue(mockErrorData);
+      const mockRepository = {
+        getSupportedTokens: jest.fn().mockRejectedValue(mockError),
+      } as unknown as BlockchainRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSupportedTokensPresentation({}));
+      (BlockchainRepositoryImpl as jest.MockedClass<typeof BlockchainRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
-    });
+      const { result } = renderHook(
+        () => useSupportedTokensPresentation(),
+        { wrapper }
+      );
 
-    it('should handle loading states', () => {
-      // Arrange
-      const mockLoadingData = {
-        tokens: [],
-        isLoading: true,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
-      };
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
 
-      (useSupportedTokensPresentation as jest.MockedFunction<typeof useSupportedTokensPresentation>).mockReturnValue(mockLoadingData);
-
-      // Act
-      const { result } = renderHook(() => useSupportedTokensPresentation({}));
-
-      // Assert
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
   describe('useSyncTokensPresentation', () => {
-    it('should return sync function', () => {
-      // Arrange
-      const mockMutationResult = {
-        syncTokens: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
+    it('should return correct values', async () => {
+      const mockResponse = {
+        success: true,
+        message: 'Tokens synced successfully',
       };
 
-      (useSyncTokensPresentation as jest.MockedFunction<typeof useSyncTokensPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        syncTokens: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as BlockchainRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSyncTokensPresentation());
+      (BlockchainRepositoryImpl as jest.MockedClass<typeof BlockchainRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.syncTokens).toBeDefined();
-      expect(typeof result.current.syncTokens).toBe('function');
-    });
+      const { result } = renderHook(
+        () => useSyncTokensPresentation(),
+        { wrapper }
+      );
 
-    it('should handle mutation success', () => {
-      // Arrange
-      const mockResponse = { success: true, message: 'Tokens synced successfully', count: 5 };
-      const mockMutationResult = {
-        syncTokens: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: true,
-        data: mockResponse,
-      };
+      result.current.syncTokens();
 
-      (useSyncTokensPresentation as jest.MockedFunction<typeof useSyncTokensPresentation>).mockReturnValue(mockMutationResult);
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
 
-      // Act
-      const { result } = renderHook(() => useSyncTokensPresentation());
-
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.syncTokens).toHaveBeenCalled();
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockError = new Error('Sync failed');
-      const mockMutationResult = {
-        syncTokens: jest.fn(),
-        isLoading: false,
-        isError: true,
-        error: mockError,
-        isSuccess: false,
-        data: undefined,
-      };
+    it('should handle error when syncing tokens', async () => {
+      const mockError = new Error('Failed to sync tokens');
 
-      (useSyncTokensPresentation as jest.MockedFunction<typeof useSyncTokensPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        syncTokens: jest.fn().mockRejectedValue(mockError),
+      } as unknown as BlockchainRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSyncTokensPresentation());
+      (BlockchainRepositoryImpl as jest.MockedClass<typeof BlockchainRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBe(mockError);
+      const { result } = renderHook(
+        () => useSyncTokensPresentation(),
+        { wrapper }
+      );
+
+      result.current.syncTokens();
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 });

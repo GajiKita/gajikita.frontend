@@ -1,5 +1,7 @@
 import {
   useEmployeesQuery,
+  useEmployeesByCompanyQuery,
+  useEmployeesByMyCompanyQuery,
   useEmployeeQuery,
 } from '../../data/employee.query';
 import {
@@ -11,16 +13,40 @@ import { EmployeeEntity } from '../../domain/entity/EmployeeEntity';
 import { CreateEmployeeRequest } from '../../domain/req/CreateEmployeeRequest';
 import { UpdateEmployeeRequest } from '../../domain/req/UpdateEmployeeRequest';
 
-export const useEmployeeListPresentation = (params: { 
-  page?: number; 
-  limit?: number; 
-  search?: string; 
-  companyId?: string; 
+export const useEmployeeListPresentation = (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  companyId?: string;
 } = {}) => {
   const query = useEmployeesQuery(params);
 
   return {
-    employees: query.data || [],
+    employees: query.data?.employees || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const useEmployeesByCompanyPresentation = (companyId: string) => {
+  const query = useEmployeesByCompanyQuery(companyId);
+
+  return {
+    employees: query.data?.employees || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const useEmployeesByMyCompanyPresentation = () => {
+  const query = useEmployeesByMyCompanyQuery();
+
+  return {
+    employees: query.data?.employees || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

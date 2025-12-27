@@ -1,11 +1,20 @@
-import {
+import { 
   useProcessCycleMutation,
   usePreparePlatformFeeWithdrawalMutation
 } from '../../data/repayments.mutation';
-import { ProcessCycleRequest } from '../../domain/req/ProcessCycleRequest';
-import { PreparePlatformFeeWithdrawalRequest } from '../../domain/req/PreparePlatformFeeWithdrawalRequest';
-import { ProcessCycleResponse } from '../../domain/res/ProcessCycleResponse';
-import { PreparePlatformFeeWithdrawalResponse } from '../../domain/res/PreparePlatformFeeWithdrawalResponse';
+
+export const useRepaymentsPresentation = () => {
+  const processCycleMutation = useProcessCycleMutation();
+  const preparePlatformFeeWithdrawalMutation = usePreparePlatformFeeWithdrawalMutation();
+
+  return {
+    processCycle: processCycleMutation.mutate,
+    preparePlatformFeeWithdrawal: preparePlatformFeeWithdrawalMutation.mutate,
+    isLoading: processCycleMutation.isPending || preparePlatformFeeWithdrawalMutation.isPending,
+    isError: processCycleMutation.isError || preparePlatformFeeWithdrawalMutation.isError,
+    error: processCycleMutation.error || preparePlatformFeeWithdrawalMutation.error,
+  };
+};
 
 export const useProcessCyclePresentation = () => {
   const mutation = useProcessCycleMutation();
@@ -16,6 +25,7 @@ export const useProcessCyclePresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };
 
@@ -28,5 +38,6 @@ export const usePreparePlatformFeeWithdrawalPresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };

@@ -1,25 +1,16 @@
-import {
-  useSmartContractsQuery,
-  useSmartContractQuery,
+import { 
+  useSmartContractsQuery, 
+  useSmartContractQuery, 
+  useCreateSmartContractMutation, 
+  useUpdateSmartContractMutation, 
+  useDeleteSmartContractMutation 
 } from '../../data/smart-contract.query';
-import {
-  useCreateSmartContractMutation,
-  useUpdateSmartContractMutation,
-  useDeleteSmartContractMutation
-} from '../../data/smart-contract.mutation';
-import { SmartContractEntity } from '../../domain/entity/SmartContractEntity';
-import { CreateSmartContractRequest } from '../../domain/req/CreateSmartContractRequest';
-import { UpdateSmartContractRequest } from '../../domain/req/UpdateSmartContractRequest';
 
-export const useSmartContractListPresentation = (params: {
-  page?: number;
-  limit?: number;
-  search?: string;
-} = {}) => {
-  const query = useSmartContractsQuery(params);
+export const useSmartContractsPresentation = () => {
+  const query = useSmartContractsQuery({});
 
   return {
-    smartContracts: query.data?.data || [],
+    smartContracts: query.data?.smart_contracts || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -31,7 +22,7 @@ export const useSmartContractDetailPresentation = (id: string) => {
   const query = useSmartContractQuery({ id });
 
   return {
-    smartContract: query.data?.data,
+    smartContract: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -47,6 +38,7 @@ export const useCreateSmartContractPresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };
 
@@ -59,6 +51,7 @@ export const useUpdateSmartContractPresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };
 

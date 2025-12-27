@@ -9,6 +9,7 @@ interface StatCardProps {
   icon: LucideIcon;
   iconColor?: "primary" | "secondary" | "accent" | "success" | "warning";
   delay?: number;
+  className?: string;
 }
 
 const iconColorClasses = {
@@ -27,10 +28,11 @@ export function StatCard({
   icon: Icon,
   iconColor = "primary",
   delay = 0,
+  className,
 }: StatCardProps) {
   return (
     <div
-      className="card-interactive p-6 stat-card animate-slide-up"
+      className={cn("card-interactive p-6 stat-card animate-slide-up", className)}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between mb-4">

@@ -8,6 +8,8 @@ export { EmployeeDetail } from './components/EmployeeDetail';
 export {
   useEmployeeListPresentation,
   useEmployeeDetailPresentation,
+  useEmployeesByCompanyPresentation,
+  useEmployeesByMyCompanyPresentation,
   useCreateEmployeePresentation,
   useUpdateEmployeePresentation,
   useDeleteEmployeePresentation,

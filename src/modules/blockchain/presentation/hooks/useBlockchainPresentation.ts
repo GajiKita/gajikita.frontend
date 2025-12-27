@@ -1,16 +1,11 @@
-import {
-  useSupportedTokensQuery,
-} from '../../data/blockchain.query';
-import {
-  useSyncTokensMutation
-} from '../../data/blockchain.mutation';
-import { TokenListResponse } from '../../domain/res/TokenListResponse';
+import { useSupportedTokensQuery } from '../../data/blockchain.query';
+import { useSyncTokensMutation } from '../../data/blockchain.mutation';
 
-export const useSupportedTokensPresentation = (params: {} = {}) => {
-  const query = useSupportedTokensQuery(params);
+export const useSupportedTokensPresentation = () => {
+  const query = useSupportedTokensQuery();
 
   return {
-    tokens: query.data?.data || [],
+    tokens: query.data?.tokens || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -27,5 +22,6 @@ export const useSyncTokensPresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };

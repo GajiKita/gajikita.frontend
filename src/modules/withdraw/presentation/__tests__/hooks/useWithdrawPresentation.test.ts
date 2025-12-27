@@ -1,182 +1,201 @@
-// src/modules/withdraw/presentation/__tests__/hooks/useWithdrawPresentation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useSimulateWithdrawPresentation, useCreateWithdrawRequestPresentation } from '../../hooks/useWithdrawPresentation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import {
+  useWithdrawsPresentation,
+  useWithdrawDetailPresentation,
+  useCreateWithdrawPresentation,
+  useExecuteWithdrawPresentation
+} from '../../hooks/useWithdrawPresentation';
+import { WithdrawRepositoryImpl } from '../../../repository/implementation/WithdrawRepositoryImpl';
 
-// Mock the data layer hooks
-jest.mock('../../hooks/useWithdrawPresentation', () => ({
-  ...jest.requireActual('../../hooks/useWithdrawPresentation'),
-  useSimulateWithdrawPresentation: jest.fn(),
-  useCreateWithdrawRequestPresentation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../../repository/implementation/WithdrawRepositoryImpl');
 
-describe('Withdraw Presentation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Withdraw Presentation Hooks Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
-  describe('useSimulateWithdrawPresentation', () => {
-    it('should return simulation data', () => {
-      // Arrange
-      const mockParams = {
-        employee_id: '1',
-        payroll_cycle_id: 'cycle1',
-        requested_amount: 1000000,
-      };
-      const mockData = {
-        simulation: {
-          data: {
-            simulated_amount: 950000, // After fees
-            fees: {
-              platform_fee: 30000,
-              gas_fee: 20000,
-            },
-            estimated_completion_time: '24h',
-            token_rate: 0.000000000000000001, // ETH per IDR
-          }
-        },
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
+  describe('useWithdrawsPresentation', () => {
+    it('should return correct values', async () => {
+      const mockEmployeeId = 'emp-123';
+      const mockResponse = {
+        withdraw_requests: [
+          {
+            id: 'wr-123',
+            employee_id: 'emp-123',
+            payroll_cycle_id: 'pc-456',
+            requested_amount: 1000,
+            status: 'PENDING',
+            created_at: '2025-01-15T10:00:00Z',
+          },
+        ],
       };
 
-      (useSimulateWithdrawPresentation as jest.MockedFunction<typeof useSimulateWithdrawPresentation>).mockReturnValue(mockData);
+      const mockRepository = {
+        getWithdrawRequests: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as WithdrawRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSimulateWithdrawPresentation(mockParams));
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.simulation).toEqual(mockData.simulation);
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isError).toBe(false);
+      const { result } = renderHook(
+        () => useWithdrawsPresentation({ employeeId: mockEmployeeId }),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.withdraws).toEqual(mockResponse.withdraw_requests);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+        expect(typeof result.current.refetch).toBe('function');
+      });
+
+      expect(mockRepository.getWithdrawRequests).toHaveBeenCalledWith({ employee_id: mockEmployeeId });
     });
 
-    it('should handle error states', () => {
-      // Arrange
-      const mockParams = {
-        employee_id: '1',
-        payroll_cycle_id: 'cycle1',
-        requested_amount: 1000000,
-      };
-      const mockErrorData = {
-        simulation: undefined,
-        isLoading: false,
-        isError: true,
-        error: new Error('API Error'),
-        refetch: jest.fn(),
-      };
+    it('should handle error when fetching withdraws', async () => {
+      const mockEmployeeId = 'emp-123';
+      const mockError = new Error('Failed to fetch withdraw requests');
 
-      (useSimulateWithdrawPresentation as jest.MockedFunction<typeof useSimulateWithdrawPresentation>).mockReturnValue(mockErrorData);
+      const mockRepository = {
+        getWithdrawRequests: jest.fn().mockRejectedValue(mockError),
+      } as unknown as WithdrawRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSimulateWithdrawPresentation(mockParams));
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
-    });
+      const { result } = renderHook(
+        () => useWithdrawsPresentation({ employeeId: mockEmployeeId }),
+        { wrapper }
+      );
 
-    it('should handle loading states', () => {
-      // Arrange
-      const mockParams = {
-        employee_id: '1',
-        payroll_cycle_id: 'cycle1',
-        requested_amount: 1000000,
-      };
-      const mockLoadingData = {
-        simulation: undefined,
-        isLoading: true,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
-      };
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
 
-      (useSimulateWithdrawPresentation as jest.MockedFunction<typeof useSimulateWithdrawPresentation>).mockReturnValue(mockLoadingData);
-
-      // Act
-      const { result } = renderHook(() => useSimulateWithdrawPresentation(mockParams));
-
-      // Assert
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
-  describe('useCreateWithdrawRequestPresentation', () => {
-    it('should return create function', () => {
-      // Arrange
-      const mockMutationResult = {
-        createWithdrawRequest: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
-
-      (useCreateWithdrawRequestPresentation as jest.MockedFunction<typeof useCreateWithdrawRequestPresentation>).mockReturnValue(mockMutationResult);
-
-      // Act
-      const { result } = renderHook(() => useCreateWithdrawRequestPresentation());
-
-      // Assert
-      expect(result.current.createWithdrawRequest).toBeDefined();
-      expect(typeof result.current.createWithdrawRequest).toBe('function');
-    });
-
-    it('should handle mutation success', () => {
-      // Arrange
+  describe('useWithdrawDetailPresentation', () => {
+    it('should return correct values', async () => {
+      const mockId = 'wr-123';
       const mockResponse = {
-        data: {
-          id: 'withdraw1',
-          employee_id: '1',
-          payroll_cycle_id: 'cycle1',
-          requested_amount: 1000000,
-          processed_amount: 950000,
-          status: 'pending',
-          transaction_hash: null,
-          requested_at: '2024-01-15T10:00:00Z',
-          processed_at: null,
-          completed_at: null,
-        }
-      };
-      const mockMutationResult = {
-        createWithdrawRequest: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: true,
-        data: mockResponse,
+        id: 'wr-123',
+        employee_id: 'emp-123',
+        payroll_cycle_id: 'pc-456',
+        requested_amount: 1000,
+        status: 'PENDING',
+        created_at: '2025-01-15T10:00:00Z',
       };
 
-      (useCreateWithdrawRequestPresentation as jest.MockedFunction<typeof useCreateWithdrawRequestPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        getWithdrawRequestById: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as WithdrawRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useCreateWithdrawRequestPresentation());
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
-      expect(result.current.data).toEqual(mockResponse);
+      const { result } = renderHook(
+        () => useWithdrawDetailPresentation(mockId),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.withdraw).toEqual(mockResponse);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+      });
+
+      expect(mockRepository.getWithdrawRequestById).toHaveBeenCalledWith({ id: mockId });
     });
+  });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockError = new Error('Insufficient balance');
-      const mockMutationResult = {
-        createWithdrawRequest: jest.fn(),
-        isLoading: false,
-        isError: true,
-        error: mockError,
-        isSuccess: false,
-        data: undefined,
+  describe('useCreateWithdrawPresentation', () => {
+    it('should return correct values', async () => {
+      const mockRequest = {
+        employee_id: 'emp-123',
+        payroll_cycle_id: 'pc-456',
+        requested_amount: 1000,
+      };
+      const mockResponse = {
+        to: '0x123...',
+        data: '0x...',
       };
 
-      (useCreateWithdrawRequestPresentation as jest.MockedFunction<typeof useCreateWithdrawRequestPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        createWithdrawRequest: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as WithdrawRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useCreateWithdrawRequestPresentation());
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBe(mockError);
+      const { result } = renderHook(
+        () => useCreateWithdrawPresentation(),
+        { wrapper }
+      );
+
+      result.current.createWithdrawRequest(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.createWithdrawRequest).toHaveBeenCalledWith(mockRequest);
+    });
+  });
+
+  describe('useExecuteWithdrawPresentation', () => {
+    it('should return correct values', async () => {
+      const mockId = 'wr-123';
+      const mockRequest = {
+        approved_amount: 1000,
+        extra_aave_fee: 50,
+      };
+      const mockResponse = {
+        success: true,
+        message: 'Withdrawal executed successfully',
+      };
+
+      const mockRepository = {
+        executeWithdraw: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as WithdrawRepositoryImpl;
+
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
+
+      const { result } = renderHook(
+        () => useExecuteWithdrawPresentation(),
+        { wrapper }
+      );
+
+      result.current.executeWithdraw({ id: mockId, request: mockRequest });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.executeWithdraw).toHaveBeenCalledWith(
+        mockId,
+        mockRequest.approved_amount,
+        mockRequest.extra_aave_fee
+      );
     });
   });
 });

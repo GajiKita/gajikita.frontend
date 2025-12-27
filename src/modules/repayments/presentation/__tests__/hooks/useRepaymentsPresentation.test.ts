@@ -1,172 +1,164 @@
-// src/modules/repayments/presentation/__tests__/hooks/useRepaymentsPresentation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useProcessCyclePresentation, usePreparePlatformFeeWithdrawalPresentation } from '../../hooks/useRepaymentsPresentation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import { 
+  useRepaymentsPresentation,
+  useProcessCyclePresentation,
+  usePreparePlatformFeeWithdrawalPresentation
+} from '../hooks/useRepaymentsPresentation';
+import { RepaymentRepositoryImpl } from '../../../repository/implementation/RepaymentRepositoryImpl';
 
-// Mock the data layer hooks
-jest.mock('../../hooks/useRepaymentsPresentation', () => ({
-  ...jest.requireActual('../../hooks/useRepaymentsPresentation'),
-  useProcessCyclePresentation: jest.fn(),
-  usePreparePlatformFeeWithdrawalPresentation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../../repository/implementation/RepaymentRepositoryImpl');
 
-describe('Repayments Presentation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Repayments Presentation Hooks Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
   describe('useProcessCyclePresentation', () => {
-    it('should return process function', () => {
-      // Arrange
-      const mockMutationResult = {
-        processCycle: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
-
-      (useProcessCyclePresentation as jest.MockedFunction<typeof useProcessCyclePresentation>).mockReturnValue(mockMutationResult);
-
-      // Act
-      const { result } = renderHook(() => useProcessCyclePresentation());
-
-      // Assert
-      expect(result.current.processCycle).toBeDefined();
-      expect(typeof result.current.processCycle).toBe('function');
-    });
-
-    it('should handle successful cycle processing', () => {
-      // Arrange
-      const mockRequest = {
-        cycle_id: 'cycle1',
-      };
+    it('should return correct values', async () => {
+      const mockCycleId = 'pc-123';
       const mockResponse = {
-        data: {
-          success: true,
-          processed_count: 15,
-          total_amount: 150000000,
-          message: 'Payroll cycle processed successfully',
-        }
+        success: true,
+        message: 'Cycle processed successfully',
+        processed_count: 5,
       };
-      const mockMutationResult = {
+
+      const mockRepository = {
         processCycle: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: true,
-        data: mockResponse,
-      };
+      } as unknown as RepaymentRepositoryImpl;
 
-      (useProcessCyclePresentation as jest.MockedFunction<typeof useProcessCyclePresentation>).mockReturnValue(mockMutationResult);
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => useProcessCyclePresentation());
+      const { result } = renderHook(
+        () => useProcessCyclePresentation(),
+        { wrapper }
+      );
 
-      // Process a cycle
-      result.current.processCycle(mockRequest);
+      result.current.processCycle(mockCycleId);
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.processCycle).toHaveBeenCalledWith(mockCycleId);
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockError = new Error('Cycle processing failed');
-      const mockMutationResult = {
-        processCycle: jest.fn(),
-        isLoading: false,
-        isError: true,
-        error: mockError,
-        isSuccess: false,
-        data: undefined,
-      };
+    it('should handle error when processing cycle', async () => {
+      const mockCycleId = 'pc-123';
+      const mockError = new Error('Failed to process cycle');
 
-      (useProcessCyclePresentation as jest.MockedFunction<typeof useProcessCyclePresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        processCycle: jest.fn().mockRejectedValue(mockError),
+      } as unknown as RepaymentRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useProcessCyclePresentation());
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBe(mockError);
+      const { result } = renderHook(
+        () => useProcessCyclePresentation(),
+        { wrapper }
+      );
+
+      result.current.processCycle(mockCycleId);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
   describe('usePreparePlatformFeeWithdrawalPresentation', () => {
-    it('should return prepare function', () => {
-      // Arrange
-      const mockMutationResult = {
-        preparePlatformFeeWithdrawal: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
-
-      (usePreparePlatformFeeWithdrawalPresentation as jest.MockedFunction<typeof usePreparePlatformFeeWithdrawalPresentation>).mockReturnValue(mockMutationResult);
-
-      // Act
-      const { result } = renderHook(() => usePreparePlatformFeeWithdrawalPresentation());
-
-      // Assert
-      expect(result.current.preparePlatformFeeWithdrawal).toBeDefined();
-      expect(typeof result.current.preparePlatformFeeWithdrawal).toBe('function');
-    });
-
-    it('should handle successful platform fee withdrawal preparation', () => {
-      // Arrange
+    it('should return correct values', async () => {
       const mockRequest = {
-        amount: 5000000,
-        recipient: '0x1234567890123456789012345678901234567890',
+        amount: 1000,
+        cid: 'c-456',
       };
       const mockResponse = {
-        data: {
-          transaction_hash: '0xabc123...',
-          estimated_gas: '45000',
-          gas_price: '25',
-          fee_distributed: true,
-        }
+        to: '0x123...',
+        data: '0x...',
+        value: '0',
       };
-      const mockMutationResult = {
+
+      const mockRepository = {
         preparePlatformFeeWithdrawal: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: true,
-        data: mockResponse,
-      };
+      } as unknown as RepaymentRepositoryImpl;
 
-      (usePreparePlatformFeeWithdrawalPresentation as jest.MockedFunction<typeof usePreparePlatformFeeWithdrawalPresentation>).mockReturnValue(mockMutationResult);
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => usePreparePlatformFeeWithdrawalPresentation());
+      const { result } = renderHook(
+        () => usePreparePlatformFeeWithdrawalPresentation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      result.current.preparePlatformFeeWithdrawal(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.preparePlatformFeeWithdrawal).toHaveBeenCalledWith(mockRequest);
     });
 
-    it('should handle preparation errors', () => {
-      // Arrange
-      const mockError = new Error('Fee withdrawal preparation failed');
-      const mockMutationResult = {
-        preparePlatformFeeWithdrawal: jest.fn(),
-        isLoading: false,
-        isError: true,
-        error: mockError,
-        isSuccess: false,
-        data: undefined,
+    it('should handle error when preparing platform fee withdrawal', async () => {
+      const mockRequest = {
+        amount: 1000,
+        cid: 'c-456',
       };
+      const mockError = new Error('Failed to prepare platform fee withdrawal');
 
-      (usePreparePlatformFeeWithdrawalPresentation as jest.MockedFunction<typeof usePreparePlatformFeeWithdrawalPresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        preparePlatformFeeWithdrawal: jest.fn().mockRejectedValue(mockError),
+      } as unknown as RepaymentRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => usePreparePlatformFeeWithdrawalPresentation());
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBe(mockError);
+      const { result } = renderHook(
+        () => usePreparePlatformFeeWithdrawalPresentation(),
+        { wrapper }
+      );
+
+      result.current.preparePlatformFeeWithdrawal(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useRepaymentsPresentation', () => {
+    it('should return processCycle and preparePlatformFeeWithdrawal functions', () => {
+      const { result } = renderHook(
+        () => useRepaymentsPresentation(),
+        { wrapper }
+      );
+
+      expect(typeof result.current.processCycle).toBe('function');
+      expect(typeof result.current.preparePlatformFeeWithdrawal).toBe('function');
+      expect(typeof result.current.isLoading).toBe('boolean');
+      expect(typeof result.current.isError).toBe('boolean');
+      expect(result.current.error).toBeNull;
     });
   });
 });

@@ -6,8 +6,20 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { AdvanceTrendChart, LiquidityChart, RevenueShareChart } from "@/components/dashboard/AnalyticsCharts";
 import { LiquidityCard } from "@/components/dashboard/LiquidityCard";
 import { EmployeeTable } from "@/components/dashboard/EmployeeTable";
+import { useDashboardStats } from '@/modules/dashboard/presentation/hooks/useDashboardPresentation';
 
 export default function HRDashboard() {
+  const { stats, isLoading, isError, error } = useDashboardStats();
+
+  if (isError) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+        <p className="text-muted-foreground">{error?.message}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -22,7 +34,7 @@ export default function HRDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Karyawan Aktif"
-          value="156"
+          value={stats.totalEmployees.toString()}
           change="+12"
           changeType="positive"
           icon={Users}
@@ -30,27 +42,27 @@ export default function HRDashboard() {
           delay={0}
         />
         <StatCard
-          title="Total Payroll Bulan Ini"
-          value="Rp 2.34B"
-          change="+8.2%"
+          title="Total Companies"
+          value={stats.totalCompanies.toString()}
+          change="+5"
           changeType="positive"
           icon={Wallet}
           iconColor="secondary"
           delay={100}
         />
         <StatCard
-          title="Salary Advance Diambil"
-          value="Rp 189M"
-          change="+15.3%"
+          title="Total Investors"
+          value={stats.totalInvestors.toString()}
+          change="+3"
           changeType="positive"
           icon={Zap}
           iconColor="accent"
           delay={200}
         />
         <StatCard
-          title="Liquidity Pool"
-          value="Rp 1.15B"
-          change="Healthy"
+          title="Payroll Cycles"
+          value={stats.totalPayrollCycles.toString()}
+          change="Current"
           changeType="neutral"
           icon={Coins}
           iconColor="success"

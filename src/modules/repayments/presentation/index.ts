@@ -1,10 +1,14 @@
 // Repayments Presentation Layer Export
 // Components
-
-// Hooks
-export {
-  useProcessCyclePresentation,
-  usePreparePlatformFeeWithdrawalPresentation,
-} from './hooks/useRepaymentsPresentation';
+export { RepaymentsDashboard } from './components/RepaymentsDashboard';
 
 // Forms
+export { ProcessCycleForm } from './forms/ProcessCycleForm';
+export { PreparePlatformFeeWithdrawalForm } from './forms/PreparePlatformFeeWithdrawalForm';
+
+// Hooks
+export { 
+  useRepaymentsPresentation,
+  useProcessCyclePresentation,
+  usePreparePlatformFeeWithdrawalPresentation
+} from './hooks/useRepaymentsPresentation';

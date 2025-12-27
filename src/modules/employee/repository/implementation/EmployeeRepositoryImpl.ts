@@ -19,6 +19,14 @@ export class EmployeeRepositoryImpl implements EmployeeRepository {
         return httpClient.get<EmployeeListResponse>(API_ROUTES.employees.base, { params: request as any });
     }
 
+    async getEmployeesByCompany(companyId: string): Promise<EmployeeListResponse> {
+        return httpClient.get<EmployeeListResponse>(API_ROUTES.employees.company.byId(companyId));
+    }
+
+    async getEmployeesByMyCompany(): Promise<EmployeeListResponse> {
+        return httpClient.get<EmployeeListResponse>(API_ROUTES.employees.me.company);
+    }
+
     async getEmployeeById(request: GetEmployeeByIdRequest): Promise<EmployeeResponse> {
         return httpClient.get<EmployeeResponse>(API_ROUTES.employees.byId(request.id));
     }

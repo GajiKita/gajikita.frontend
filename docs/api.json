@@ -329,7 +329,56 @@
                         "bearer": []
                     }
                 ],
-                "summary": "List all employees",
+                "summary": "List all employees (ADMIN only)",
+                "tags": [
+                    "employees"
+                ]
+            }
+        },
+        "/employees/company/{companyId}": {
+            "get": {
+                "operationId": "EmployeesController_findByCompany",
+                "parameters": [
+                    {
+                        "name": "companyId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return list of employees for the company."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List employees by company ID (ADMIN only)",
+                "tags": [
+                    "employees"
+                ]
+            }
+        },
+        "/employees/me/company": {
+            "get": {
+                "operationId": "EmployeesController_findMyCompanyEmployees",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Return list of employees for the HR company."
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "List employees for HR current company (HR only)",
                 "tags": [
                     "employees"
                 ]
@@ -960,6 +1009,34 @@
                 ]
             }
         },
+        "/auth/register": {
+            "post": {
+                "operationId": "AuthController_register",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful registration"
+                    },
+                    "401": {
+                        "description": "Invalid signature"
+                    }
+                },
+                "summary": "Register a new user or update existing one",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
         "/investors": {
             "post": {
                 "operationId": "InvestorsController_create",
@@ -1420,6 +1497,13 @@
     ],
     "servers": [],
     "components": {
+        "securitySchemes": {
+            "bearer": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http"
+            }
+        },
         "schemas": {
             "CreateCompanyDto": {
                 "type": "object",
@@ -1710,7 +1794,7 @@
                     },
                     "message": {
                         "type": "string",
-                        "example": "Sign this message to login",
+                        "example": "I am doing the signature on Kam, 25 Desember 2025 20:40",
                         "description": "The signed message"
                     }
                 },
@@ -1718,6 +1802,46 @@
                     "walletAddress",
                     "signature",
                     "message"
+                ]
+            },
+            "RegisterDto": {
+                "type": "object",
+                "properties": {
+                    "walletAddress": {
+                        "type": "string",
+                        "example": "0x123...",
+                        "description": "Wallet address of the user"
+                    },
+                    "signature": {
+                        "type": "string",
+                        "example": "0xabc...",
+                        "description": "Signature of the message"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "I register as EMPLOYEE on Kam, 25 Desember 2025 20:40",
+                        "description": "The signed message"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "user@example.com",
+                        "description": "Email address (optional)"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "EMPLOYEE",
+                            "INVESTOR"
+                        ],
+                        "description": "User role (required: EMPLOYEE or INVESTOR)"
+                    }
+                },
+                "required": [
+                    "walletAddress",
+                    "signature",
+                    "message",
+                    "email",
+                    "role"
                 ]
             },
             "CreateInvestorDto": {

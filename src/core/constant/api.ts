@@ -11,8 +11,12 @@ export const API_ROUTES = {
   employees: {
     base: "/employees",
     byId: (id: string) => `/employees/${id}`,
+    company: {
+      byId: (companyId: string) => `/employees/company/${companyId}`,
+    },
     me: {
       preferredToken: "/employees/me/preferred-token",
+      company: "/employees/me/company",
     },
   },
   // Payroll Cycle
@@ -30,6 +34,7 @@ export const API_ROUTES = {
   // Withdraw
   withdraws: {
     base: "/withdraws",
+    byId: (id: string) => `/withdraws/${id}`,
     request: "/withdraws/request",
     simulate: "/withdraws/simulate",
     execute: (id: string) => `/withdraws/${id}/execute`,

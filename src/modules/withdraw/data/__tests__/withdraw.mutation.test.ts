@@ -1,82 +1,119 @@
-// src/modules/withdraw/data/__tests__/withdraw.mutation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useCreateWithdrawRequestMutation } from '../withdraw.mutation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import { useExecuteWithdrawMutation } from '../withdraw.mutation';
+import { WithdrawRepositoryImpl } from '../../repository/implementation/WithdrawRepositoryImpl';
 
-// Mock the API calls directly
-jest.mock('../withdraw.mutation', () => ({
-  ...jest.requireActual('../withdraw.mutation'),
-  useCreateWithdrawRequestMutation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../repository/implementation/WithdrawRepositoryImpl');
 
-describe('Withdraw Mutation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Withdraw Mutation Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
-  describe('useCreateWithdrawRequestMutation', () => {
-    it('should return success on successful API call', () => {
-      // Arrange
+  describe('useExecuteWithdrawMutation', () => {
+    it('should execute withdraw successfully', async () => {
+      const mockId = 'withdraw-123';
       const mockRequest = {
-        employee_id: '1',
-        payroll_cycle_id: 'cycle1',
-        requested_amount: 1000000,
-        reason: 'Emergency funds',
+        approved_amount: 1000,
+        extra_aave_fee: 50,
       };
       const mockResponse = {
-        data: {
-          id: 'withdraw1',
-          employee_id: '1',
-          payroll_cycle_id: 'cycle1',
-          requested_amount: 1000000,
-          processed_amount: 950000,
-          status: 'pending',
-          transaction_hash: null,
-          requested_at: '2024-01-15T10:00:00Z',
-          processed_at: null,
-          completed_at: null,
-        }
+        success: true,
+        message: 'Withdrawal executed successfully',
       };
 
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-        data: mockResponse,
-        error: undefined,
-      };
+      const mockRepository = {
+        executeWithdraw: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as WithdrawRepositoryImpl;
 
-      (useCreateWithdrawRequestMutation as jest.MockedFunction<typeof useCreateWithdrawRequestMutation>).mockReturnValue(mockMutationResult);
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => useCreateWithdrawRequestMutation());
+      const { result } = renderHook(
+        () => useExecuteWithdrawMutation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      result.current.mutate({ id: mockId, request: mockRequest });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.executeWithdraw).toHaveBeenCalledWith(mockId, mockRequest.approved_amount, mockRequest.extra_aave_fee);
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockRejectedValue(new Error('Insufficient balance')),
-        isLoading: false,
-        isError: true,
-        isSuccess: false,
-        data: undefined,
-        error: new Error('Insufficient balance'),
+    it('should handle error when executing withdraw', async () => {
+      const mockId = 'withdraw-123';
+      const mockRequest = {
+        approved_amount: 1000,
+      };
+      const mockError = new Error('Failed to execute withdrawal');
+
+      const mockRepository = {
+        executeWithdraw: jest.fn().mockRejectedValue(mockError),
+      } as unknown as WithdrawRepositoryImpl;
+
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
+
+      const { result } = renderHook(
+        () => useExecuteWithdrawMutation(),
+        { wrapper }
+      );
+
+      result.current.mutate({ id: mockId, request: mockRequest });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+
+    it('should execute withdraw without extra_aave_fee when not provided', async () => {
+      const mockId = 'withdraw-123';
+      const mockRequest = {
+        approved_amount: 1000,
+      };
+      const mockResponse = {
+        success: true,
+        message: 'Withdrawal executed successfully',
       };
 
-      (useCreateWithdrawRequestMutation as jest.MockedFunction<typeof useCreateWithdrawRequestMutation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        executeWithdraw: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as WithdrawRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useCreateWithdrawRequestMutation());
+      (WithdrawRepositoryImpl as jest.MockedClass<typeof WithdrawRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      const { result } = renderHook(
+        () => useExecuteWithdrawMutation(),
+        { wrapper }
+      );
+
+      result.current.mutate({ id: mockId, request: mockRequest });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.executeWithdraw).toHaveBeenCalledWith(mockId, mockRequest.approved_amount, undefined);
     });
   });
 });

@@ -1,138 +1,174 @@
-// src/modules/auth/data/__tests__/auth.query.test.ts
-import { renderHook } from '@testing-library/react';
-import { useSignInMutation, useRegisterMutation } from '../auth.mutation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import {
+  useSignInMutation,
+  useRegisterMutation
+} from '../../data/auth.mutation';
+import { AuthRepositoryImpl } from '../../repository/implementation/AuthRepositoryImpl';
 
-// Mock the API calls directly
-jest.mock('../auth.mutation', () => ({
-  ...jest.requireActual('../auth.mutation'),
-  useSignInMutation: jest.fn(),
-  useRegisterMutation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../repository/implementation/AuthRepositoryImpl');
 
-describe('Auth Mutation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Auth Data Layer Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
   describe('useSignInMutation', () => {
-    it('should return success on successful API call', () => {
-      // Arrange
+    it('should sign in user successfully', async () => {
       const mockRequest = {
-        email: 'test@example.com',
-        password: 'password123',
+        walletAddress: '0x123...',
+        signature: '0xabc...',
+        message: 'I am signing in on Kam, 25 Dec 2025 20:40',
       };
       const mockResponse = {
-        data: {
-          token: 'fake-jwt-token',
-          user: {
-            id: '1',
-            name: 'Test User',
-            email: 'test@example.com',
-            role: 'employee',
-          }
-        }
+        access_token: 'jwt-token-here',
+        refresh_token: 'refresh-token-here',
+        user: {
+          id: 'u-123',
+          wallet_address: '0x123...',
+          role: 'EMPLOYEE',
+          email: 'user@example.com',
+          created_at: '2025-01-15T10:00:00Z',
+          updated_at: '2025-01-15T10:00:00Z',
+        },
       };
 
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-        data: mockResponse,
-        error: undefined,
-      };
+      const mockRepository = {
+        signIn: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as AuthRepositoryImpl;
 
-      (useSignInMutation as jest.MockedFunction<typeof useSignInMutation>).mockReturnValue(mockMutationResult);
+      (AuthRepositoryImpl as jest.MockedClass<typeof AuthRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => useSignInMutation());
+      const { result } = renderHook(
+        () => useSignInMutation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      result.current.mutate(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.signIn).toHaveBeenCalledWith(mockRequest);
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockRejectedValue(new Error('Invalid credentials')),
-        isLoading: false,
-        isError: true,
-        isSuccess: false,
-        data: undefined,
-        error: new Error('Invalid credentials'),
+    it('should handle error when signing in', async () => {
+      const mockRequest = {
+        walletAddress: '0x123...',
+        signature: '0xabc...',
+        message: 'I am signing in on Kam, 25 Dec 2025 20:40',
       };
+      const mockError = new Error('Invalid signature or user not found');
 
-      (useSignInMutation as jest.MockedFunction<typeof useSignInMutation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        signIn: jest.fn().mockRejectedValue(mockError),
+      } as unknown as AuthRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useSignInMutation());
+      (AuthRepositoryImpl as jest.MockedClass<typeof AuthRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      const { result } = renderHook(
+        () => useSignInMutation(),
+        { wrapper }
+      );
+
+      result.current.mutate(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
   describe('useRegisterMutation', () => {
-    it('should return success on successful API call', () => {
-      // Arrange
+    it('should register user successfully', async () => {
       const mockRequest = {
-        name: 'New User',
+        walletAddress: '0x456...',
+        signature: '0xdef...',
+        message: 'I register as EMPLOYEE on Kam, 25 Dec 2025 20:40',
         email: 'newuser@example.com',
-        password: 'password123',
+        role: 'EMPLOYEE',
       };
       const mockResponse = {
-        data: {
-          id: '2',
-          name: 'New User',
+        access_token: 'jwt-token-here',
+        refresh_token: 'refresh-token-here',
+        user: {
+          id: 'u-456',
+          wallet_address: '0x456...',
+          role: 'EMPLOYEE',
           email: 'newuser@example.com',
-          role: 'employee',
-        }
+          created_at: '2025-01-15T10:00:00Z',
+          updated_at: '2025-01-15T10:00:00Z',
+        },
       };
 
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-        data: mockResponse,
-        error: undefined,
-      };
+      const mockRepository = {
+        register: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as AuthRepositoryImpl;
 
-      (useRegisterMutation as jest.MockedFunction<typeof useRegisterMutation>).mockReturnValue(mockMutationResult);
+      (AuthRepositoryImpl as jest.MockedClass<typeof AuthRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => useRegisterMutation());
+      const { result } = renderHook(
+        () => useRegisterMutation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      result.current.mutate(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.register).toHaveBeenCalledWith(mockRequest);
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockRejectedValue(new Error('Registration failed')),
-        isLoading: false,
-        isError: true,
-        isSuccess: false,
-        data: undefined,
-        error: new Error('Registration failed'),
+    it('should handle error when registering', async () => {
+      const mockRequest = {
+        walletAddress: '0x456...',
+        signature: '0xdef...',
+        message: 'I register as EMPLOYEE on Kam, 25 Dec 2025 20:40',
+        email: 'newuser@example.com',
+        role: 'EMPLOYEE',
       };
+      const mockError = new Error('Invalid signature');
 
-      (useRegisterMutation as jest.MockedFunction<typeof useRegisterMutation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        register: jest.fn().mockRejectedValue(mockError),
+      } as unknown as AuthRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useRegisterMutation());
+      (AuthRepositoryImpl as jest.MockedClass<typeof AuthRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      const { result } = renderHook(
+        () => useRegisterMutation(),
+        { wrapper }
+      );
+
+      result.current.mutate(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 });

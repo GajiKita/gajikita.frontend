@@ -1,19 +1,11 @@
-import {
-  useSimulateWithdrawQuery,
-} from '../../data/withdraw.query';
-import {
-  useCreateWithdrawRequestMutation
-} from '../../data/withdraw.mutation';
-import { SimulateWithdrawRequest } from '../../domain/req/SimulateWithdrawRequest';
-import { CreateWithdrawRequest as CreateWithdrawRequestDto } from '../../domain/req/CreateWithdrawRequest';
-import { SimulationResponse } from '../../domain/res/SimulationResponse';
-import { TransactionResponse } from '@/modules/shared/domain/res/TransactionResponse';
+import { useSimulateWithdrawQuery } from '../../data/withdraw.query';
+import { useCreateWithdrawRequestMutation, useExecuteWithdrawMutation } from '../../data/withdraw.mutation';
 
-export const useSimulateWithdrawPresentation = (params: SimulateWithdrawRequest) => {
-  const query = useSimulateWithdrawQuery(params);
+export const useWithdrawsPresentation = () => {
+  const query = useSimulateWithdrawQuery();
 
   return {
-    simulation: query.data,
+    withdraws: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -21,7 +13,19 @@ export const useSimulateWithdrawPresentation = (params: SimulateWithdrawRequest)
   };
 };
 
-export const useCreateWithdrawRequestPresentation = () => {
+export const useWithdrawDetailPresentation = (id: string) => {
+  // For now, we'll use the simulate query as an example - in practice you might have a specific detail query
+  const query = useSimulateWithdrawQuery({ employee_id: '', payroll_cycle_id: '', requested_amount: 0 });
+
+  return {
+    withdraw: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+};
+
+export const useCreateWithdrawPresentation = () => {
   const mutation = useCreateWithdrawRequestMutation();
 
   return {
@@ -30,5 +34,19 @@ export const useCreateWithdrawRequestPresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+    data: mutation.data,
+  };
+};
+
+export const useExecuteWithdrawPresentation = () => {
+  const mutation = useExecuteWithdrawMutation();
+
+  return {
+    executeWithdraw: mutation.mutate,
+    isLoading: mutation.isPending,
+    isError: mutation.isError,
+    error: mutation.error,
+    isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };

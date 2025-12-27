@@ -10,6 +10,6 @@ export class BlockchainRepositoryImpl implements BlockchainRepository {
     }
 
     async syncTokens(request: SyncTokensRequest): Promise<any> {
-        return httpClient.post<any>(API_ROUTES.blockchain.syncTokens);
+        return httpClient.post<any>(API_ROUTES.blockchain.syncTokens, request);
     }
 }

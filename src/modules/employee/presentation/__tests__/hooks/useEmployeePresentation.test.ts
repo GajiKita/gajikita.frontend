@@ -1,158 +1,120 @@
-// src/modules/employee/presentation/__tests__/hooks/useEmployeePresentation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useEmployeeListPresentation } from '../../hooks/useEmployeePresentation';
-import { useCreateEmployeePresentation, useUpdateEmployeePresentation, useDeleteEmployeePresentation } from '../../hooks/useEmployeePresentation';
+import React from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEmployeesByCompanyPresentation, useEmployeesByMyCompanyPresentation } from '../useEmployeePresentation';
 
-// Mock the data layer hooks
-jest.mock('../../hooks/useEmployeePresentation', () => ({
-  ...jest.requireActual('../../hooks/useEmployeePresentation'),
-  useEmployeeListPresentation: jest.fn(),
-  useCreateEmployeePresentation: jest.fn(),
-  useUpdateEmployeePresentation: jest.fn(),
-  useDeleteEmployeePresentation: jest.fn(),
-}));
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
-describe('Employee Presentation Hooks', () => {
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Employee Presentation Hooks Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
-  describe('useEmployeeListPresentation', () => {
-    it('should return formatted employee data', () => {
-      // Arrange
-      const mockParams = { page: 1, limit: 10, search: '' };
-      const mockData = {
+  describe('useEmployeesByCompanyPresentation', () => {
+    it('should return correct values', async () => {
+      const mockCompanyId = 'company-123';
+      const mockResponse = {
         employees: [
           {
-            id: '1',
-            user_id: 'user1',
-            company_id: 'company1',
+            id: 'emp-1',
+            user_id: 'user-1',
+            company_id: 'company-123',
             employee_number: 'EMP001',
-            position: 'Software Engineer',
-            base_salary: 10000000,
-            wallet_address: '0x1234567890123456789012345678901234567890',
-            preferred_payout_token: 'ETH',
-            status: 'active',
-            sbt_token_id: null,
-            employed_started: '2024-01-01',
-            employed_ended: null,
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            deleted: false,
-          }
+            position: 'Developer',
+            base_salary: 5000,
+            wallet_address: '0x123...',
+            status: 'ACTIVE',
+            sbt_token_id: 'sbt-1',
+            employed_started: '2023-01-01',
+            employed_ended: '2025-12-31',
+          },
         ],
-        isLoading: false,
-        isError: false,
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 1,
-          totalPages: 1,
-        },
       };
 
-      (useEmployeeListPresentation as jest.MockedFunction<typeof useEmployeeListPresentation>).mockReturnValue(mockData);
+      jest.mock('../../../data/employee.query', () => ({
+        useEmployeesByCompanyQuery: jest.fn(() => ({
+          data: mockResponse,
+          isLoading: false,
+          isError: false,
+          error: null,
+          refetch: jest.fn(),
+        })),
+      }));
 
-      // Act
-      const { result } = renderHook(() => useEmployeeListPresentation(mockParams));
+      const { useEmployeesByCompanyQuery } = require('../../../data/employee.query');
+      const { result } = renderHook(
+        () => useEmployeesByCompanyPresentation(mockCompanyId),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.employees).toEqual(mockData.employees);
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isError).toBe(false);
-    });
+      await waitFor(() => {
+        expect(result.current.employees).toEqual(mockResponse.employees);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+        expect(typeof result.current.refetch).toBe('function');
+      });
 
-    it('should handle error states', () => {
-      // Arrange
-      const mockErrorData = {
-        employees: [],
-        isLoading: false,
-        isError: true,
-        error: new Error('API Error'),
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalPages: 0,
-        },
-      };
-
-      (useEmployeeListPresentation as jest.MockedFunction<typeof useEmployeeListPresentation>).mockReturnValue(mockErrorData);
-
-      // Act
-      const { result } = renderHook(() => useEmployeeListPresentation({ page: 1, limit: 10 }));
-
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      expect(useEmployeesByCompanyQuery).toHaveBeenCalledWith(mockCompanyId);
     });
   });
 
-  describe('useCreateEmployeePresentation', () => {
-    it('should return mutation function', () => {
-      // Arrange
-      const mockMutationResult = {
-        createEmployee: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
+  describe('useEmployeesByMyCompanyPresentation', () => {
+    it('should return correct values', async () => {
+      const mockResponse = {
+        employees: [
+          {
+            id: 'emp-1',
+            user_id: 'user-1',
+            company_id: 'company-123',
+            employee_number: 'EMP001',
+            position: 'Developer',
+            base_salary: 5000,
+            wallet_address: '0x123...',
+            status: 'ACTIVE',
+            sbt_token_id: 'sbt-1',
+            employed_started: '2023-01-01',
+            employed_ended: '2025-12-31',
+          },
+        ],
       };
 
-      (useCreateEmployeePresentation as jest.MockedFunction<typeof useCreateEmployeePresentation>).mockReturnValue(mockMutationResult);
+      jest.mock('../../../data/employee.query', () => ({
+        useEmployeesByMyCompanyQuery: jest.fn(() => ({
+          data: mockResponse,
+          isLoading: false,
+          isError: false,
+          error: null,
+          refetch: jest.fn(),
+        })),
+      }));
 
-      // Act
-      const { result } = renderHook(() => useCreateEmployeePresentation());
+      const { useEmployeesByMyCompanyQuery } = require('../../../data/employee.query');
+      const { result } = renderHook(
+        () => useEmployeesByMyCompanyPresentation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.createEmployee).toBeDefined();
-      expect(typeof result.current.createEmployee).toBe('function');
-    });
-  });
+      await waitFor(() => {
+        expect(result.current.employees).toEqual(mockResponse.employees);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+        expect(typeof result.current.refetch).toBe('function');
+      });
 
-  describe('useUpdateEmployeePresentation', () => {
-    it('should return update function', () => {
-      // Arrange
-      const mockMutationResult = {
-        updateEmployee: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
-
-      (useUpdateEmployeePresentation as jest.MockedFunction<typeof useUpdateEmployeePresentation>).mockReturnValue(mockMutationResult);
-
-      // Act
-      const { result } = renderHook(() => useUpdateEmployeePresentation());
-
-      // Assert
-      expect(result.current.updateEmployee).toBeDefined();
-      expect(typeof result.current.updateEmployee).toBe('function');
-    });
-  });
-
-  describe('useDeleteEmployeePresentation', () => {
-    it('should return delete function', () => {
-      // Arrange
-      const mockMutationResult = {
-        deleteEmployee: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
-
-      (useDeleteEmployeePresentation as jest.MockedFunction<typeof useDeleteEmployeePresentation>).mockReturnValue(mockMutationResult);
-
-      // Act
-      const { result } = renderHook(() => useDeleteEmployeePresentation());
-
-      // Assert
-      expect(result.current.deleteEmployee).toBeDefined();
-      expect(typeof result.current.deleteEmployee).toBe('function');
+      expect(useEmployeesByMyCompanyQuery).toHaveBeenCalledWith();
     });
   });
 });

@@ -1,266 +1,234 @@
-// src/modules/payroll-cycle/presentation/__tests__/hooks/usePayrollCyclePresentation.test.ts
-import { renderHook } from '@testing-library/react';
-import { usePayrollCycleListPresentation, usePayrollCycleDetailPresentation, useCreatePayrollCyclePresentation, useUpdatePayrollCyclePresentation, useDeletePayrollCyclePresentation } from '../../hooks/usePayrollCyclePresentation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import { 
+  usePayrollCyclesPresentation,
+  usePayrollCycleDetailPresentation,
+  useCreatePayrollCyclePresentation,
+  useUpdatePayrollCyclePresentation,
+  useDeletePayrollCyclePresentation
+} from '../hooks/usePayrollCyclePresentation';
+import { PayrollCycleRepositoryImpl } from '../../repository/implementation/PayrollCycleRepositoryImpl';
+import { GetPayrollCycles } from '../../usecase/implementation/GetPayrollCycles';
+import { GetPayrollCycleById } from '../../usecase/implementation/GetPayrollCycleById';
+import { CreatePayrollCycle } from '../../usecase/implementation/CreatePayrollCycle';
+import { UpdatePayrollCycle } from '../../usecase/implementation/UpdatePayrollCycle';
+import { DeletePayrollCycle } from '../../usecase/implementation/DeletePayrollCycle';
 
-// Mock the data layer hooks
-jest.mock('../../hooks/usePayrollCyclePresentation', () => ({
-  ...jest.requireActual('../../hooks/usePayrollCyclePresentation'),
-  usePayrollCycleListPresentation: jest.fn(),
-  usePayrollCycleDetailPresentation: jest.fn(),
-  useCreatePayrollCyclePresentation: jest.fn(),
-  useUpdatePayrollCyclePresentation: jest.fn(),
-  useDeletePayrollCyclePresentation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../repository/implementation/PayrollCycleRepositoryImpl');
 
-describe('Payroll Cycle Presentation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Payroll Cycle Presentation Hooks Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
-  describe('usePayrollCycleListPresentation', () => {
-    it('should return formatted payroll cycle data', () => {
-      // Arrange
-      const mockParams = { page: 1, limit: 10, companyId: 'company1' };
-      const mockData = {
-        payrollCycles: [
+  describe('usePayrollCyclesPresentation', () => {
+    it('should return correct values', async () => {
+      const mockResponse = {
+        payroll_cycles: [
           {
-            id: '1',
-            company_id: 'company1',
-            period_start: '2024-01-01',
-            period_end: '2024-01-31',
-            payout_date: '2024-02-05',
+            id: 'pc-123',
+            company_id: 'c-456',
+            period_start: '2025-01-01',
+            period_end: '2025-01-31',
+            payout_date: '2025-02-05',
             total_working_days: 22,
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            deleted: false,
-          }
+            status: 'ACTIVE',
+          },
         ],
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 1,
-          totalPages: 1,
-        },
       };
 
-      (usePayrollCycleListPresentation as jest.MockedFunction<typeof usePayrollCycleListPresentation>).mockReturnValue(mockData);
+      const mockRepository = {
+        getPayrollCycles: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as PayrollCycleRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => usePayrollCycleListPresentation(mockParams));
+      (PayrollCycleRepositoryImpl as jest.MockedClass<typeof PayrollCycleRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.payrollCycles).toEqual(mockData.payrollCycles);
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isError).toBe(false);
+      const { result } = renderHook(
+        () => usePayrollCyclesPresentation({ companyId: 'c-456' }),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.payrollCycles).toEqual(mockResponse.payroll_cycles);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+        expect(typeof result.current.refetch).toBe('function');
+      });
+
+      expect(mockRepository.getPayrollCycles).toHaveBeenCalledWith({ companyId: 'c-456' });
     });
 
-    it('should handle error states', () => {
-      // Arrange
-      const mockErrorData = {
-        payrollCycles: [],
-        isLoading: false,
-        isError: true,
-        error: new Error('API Error'),
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalPages: 0,
-        },
-      };
+    it('should handle error when fetching payroll cycles', async () => {
+      const mockError = new Error('Failed to fetch payroll cycles');
 
-      (usePayrollCycleListPresentation as jest.MockedFunction<typeof usePayrollCycleListPresentation>).mockReturnValue(mockErrorData);
+      const mockRepository = {
+        getPayrollCycles: jest.fn().mockRejectedValue(mockError),
+      } as unknown as PayrollCycleRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => usePayrollCycleListPresentation({ page: 1, limit: 10 }));
+      (PayrollCycleRepositoryImpl as jest.MockedClass<typeof PayrollCycleRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
-    });
+      const { result } = renderHook(
+        () => usePayrollCyclesPresentation({}),
+        { wrapper }
+      );
 
-    it('should handle loading states', () => {
-      // Arrange
-      const mockLoadingData = {
-        payrollCycles: [],
-        isLoading: true,
-        isError: false,
-        error: undefined,
-        refetch: jest.fn(),
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalPages: 0,
-        },
-      };
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
 
-      (usePayrollCycleListPresentation as jest.MockedFunction<typeof usePayrollCycleListPresentation>).mockReturnValue(mockLoadingData);
-
-      // Act
-      const { result } = renderHook(() => usePayrollCycleListPresentation({ page: 1, limit: 10 }));
-
-      // Assert
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
   describe('usePayrollCycleDetailPresentation', () => {
-    it('should return payroll cycle detail', () => {
-      // Arrange
-      const cycleId = '1';
-      const mockData = {
-        payrollCycle: {
-          id: '1',
-          company_id: 'company1',
-          period_start: '2024-01-01',
-          period_end: '2024-01-31',
-          payout_date: '2024-02-05',
-          total_working_days: 22,
-          created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-01T00:00:00Z',
-          deleted: false,
-        },
-        isLoading: false,
-        isError: false,
-        error: undefined,
+    it('should return correct values', async () => {
+      const mockId = 'pc-123';
+      const mockResponse = {
+        id: 'pc-123',
+        company_id: 'c-456',
+        period_start: '2025-01-01',
+        period_end: '2025-01-31',
+        payout_date: '2025-02-05',
+        total_working_days: 22,
+        status: 'ACTIVE',
       };
 
-      (usePayrollCycleDetailPresentation as jest.MockedFunction<typeof usePayrollCycleDetailPresentation>).mockReturnValue(mockData);
+      const mockRepository = {
+        getPayrollCycleById: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as PayrollCycleRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => usePayrollCycleDetailPresentation(cycleId));
+      (PayrollCycleRepositoryImpl as jest.MockedClass<typeof PayrollCycleRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.payrollCycle).toEqual(mockData.payrollCycle);
-      expect(result.current.isLoading).toBe(false);
+      const { result } = renderHook(
+        () => usePayrollCycleDetailPresentation(mockId),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.payrollCycle).toEqual(mockResponse);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isError).toBe(false);
+        expect(result.current.error).toBeNull();
+      });
+
+      expect(mockRepository.getPayrollCycleById).toHaveBeenCalledWith({ id: mockId });
     });
   });
 
   describe('useCreatePayrollCyclePresentation', () => {
-    it('should return create function', () => {
-      // Arrange
-      const mockMutationResult = {
-        createPayrollCycle: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
+    it('should return correct values', async () => {
+      const mockRequest = {
+        company_id: 'c-456',
+        period_start: '2025-01-01',
+        period_end: '2025-01-31',
+        payout_date: '2025-02-05',
+        total_working_days: 22,
       };
-
-      (useCreatePayrollCyclePresentation as jest.MockedFunction<typeof useCreatePayrollCyclePresentation>).mockReturnValue(mockMutationResult);
-
-      // Act
-      const { result } = renderHook(() => useCreatePayrollCyclePresentation());
-
-      // Assert
-      expect(result.current.createPayrollCycle).toBeDefined();
-      expect(typeof result.current.createPayrollCycle).toBe('function');
-    });
-
-    it('should handle mutation success', () => {
-      // Arrange
       const mockResponse = {
-        data: {
-          id: '2',
-          company_id: 'company2',
-          period_start: '2024-02-01',
-          period_end: '2024-02-28',
-          payout_date: '2024-03-05',
-          total_working_days: 21,
-          created_at: '2024-02-01T00:00:00Z',
-          updated_at: '2024-02-01T00:00:00Z',
-          deleted: false,
-        }
-      };
-      const mockMutationResult = {
-        createPayrollCycle: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: true,
-        data: mockResponse,
+        id: 'pc-789',
+        ...mockRequest,
+        status: 'ACTIVE',
       };
 
-      (useCreatePayrollCyclePresentation as jest.MockedFunction<typeof useCreatePayrollCyclePresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        createPayrollCycle: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as PayrollCycleRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useCreatePayrollCyclePresentation());
+      (PayrollCycleRepositoryImpl as jest.MockedClass<typeof PayrollCycleRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
-      expect(result.current.data).toEqual(mockResponse);
-    });
+      const { result } = renderHook(
+        () => useCreatePayrollCyclePresentation(),
+        { wrapper }
+      );
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockError = new Error('Payroll cycle creation failed');
-      const mockMutationResult = {
-        createPayrollCycle: jest.fn(),
-        isLoading: false,
-        isError: true,
-        error: mockError,
-        isSuccess: false,
-        data: undefined,
-      };
+      result.current.createPayrollCycle(mockRequest);
 
-      (useCreatePayrollCyclePresentation as jest.MockedFunction<typeof useCreatePayrollCyclePresentation>).mockReturnValue(mockMutationResult);
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
 
-      // Act
-      const { result } = renderHook(() => useCreatePayrollCyclePresentation());
-
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBe(mockError);
+      expect(mockRepository.createPayrollCycle).toHaveBeenCalledWith(mockRequest);
     });
   });
 
   describe('useUpdatePayrollCyclePresentation', () => {
-    it('should return update function', () => {
-      // Arrange
-      const mockMutationResult = {
-        updatePayrollCycle: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
+    it('should return correct values', async () => {
+      const mockId = 'pc-123';
+      const mockRequest = {
+        period_start: '2025-02-01',
+        period_end: '2025-02-28',
+        payout_date: '2025-03-05',
+        total_working_days: 21,
+      };
+      const mockResponse = {
+        id: 'pc-123',
+        company_id: 'c-456',
+        ...mockRequest,
+        status: 'ACTIVE',
       };
 
-      (useUpdatePayrollCyclePresentation as jest.MockedFunction<typeof useUpdatePayrollCyclePresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        updatePayrollCycle: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as PayrollCycleRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useUpdatePayrollCyclePresentation());
+      (PayrollCycleRepositoryImpl as jest.MockedClass<typeof PayrollCycleRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.updatePayrollCycle).toBeDefined();
-      expect(typeof result.current.updatePayrollCycle).toBe('function');
+      const { result } = renderHook(
+        () => useUpdatePayrollCyclePresentation(),
+        { wrapper }
+      );
+
+      result.current.updatePayrollCycle({ id: mockId, ...mockRequest });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockRepository.updatePayrollCycle).toHaveBeenCalledWith({ id: mockId, ...mockRequest });
     });
   });
 
   describe('useDeletePayrollCyclePresentation', () => {
-    it('should return delete function', () => {
-      // Arrange
-      const mockMutationResult = {
-        deletePayrollCycle: jest.fn(),
-        isLoading: false,
-        isError: false,
-        error: undefined,
-        isSuccess: false,
-      };
+    it('should return correct values', async () => {
+      const mockId = 'pc-123';
 
-      (useDeletePayrollCyclePresentation as jest.MockedFunction<typeof useDeletePayrollCyclePresentation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        deletePayrollCycle: jest.fn().mockResolvedValue(undefined),
+      } as unknown as PayrollCycleRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useDeletePayrollCyclePresentation());
+      (PayrollCycleRepositoryImpl as jest.MockedClass<typeof PayrollCycleRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.deletePayrollCycle).toBeDefined();
-      expect(typeof result.current.deletePayrollCycle).toBe('function');
+      const { result } = renderHook(
+        () => useDeletePayrollCyclePresentation(),
+        { wrapper }
+      );
+
+      result.current.deletePayrollCycle(mockId);
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockRepository.deletePayrollCycle).toHaveBeenCalledWith(mockId);
     });
   });
 });

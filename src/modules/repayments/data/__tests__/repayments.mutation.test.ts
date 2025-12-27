@@ -1,133 +1,146 @@
-// src/modules/repayments/data/__tests__/repayments.mutation.test.ts
-import { renderHook } from '@testing-library/react';
-import { useProcessCycleMutation, usePreparePlatformFeeWithdrawalMutation } from '../repayments.mutation';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import {
+  useProcessCycleMutation,
+  usePreparePlatformFeeWithdrawalMutation
+} from '../../data/repayments.mutation';
+import { RepaymentRepositoryImpl } from '../../repository/implementation/RepaymentRepositoryImpl';
 
-// Mock the API calls directly
-jest.mock('../repayments.mutation', () => ({
-  ...jest.requireActual('../repayments.mutation'),
-  useProcessCycleMutation: jest.fn(),
-  usePreparePlatformFeeWithdrawalMutation: jest.fn(),
-}));
+// Mock the repository
+jest.mock('../../repository/implementation/RepaymentRepositoryImpl');
 
-describe('Repayments Mutation Hooks', () => {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+describe('Repayments Data Layer Tests', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
   });
 
   describe('useProcessCycleMutation', () => {
-    it('should return success on successful API call', () => {
-      // Arrange
-      const mockRequest = {
-        cycleId: 'cycle1',
-      };
+    it('should process cycle successfully', async () => {
+      const mockCycleId = 'pc-123';
       const mockResponse = {
-        data: {
-          success: true,
-          processed_count: 15,
-          total_amount: 150000000,
-          message: 'Payroll cycle processed successfully',
-        }
+        success: true,
+        message: 'Cycle processed successfully',
+        processed_count: 5,
       };
 
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-        data: mockResponse,
-        error: undefined,
-      };
+      const mockRepository = {
+        processCycle: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as RepaymentRepositoryImpl;
 
-      (useProcessCycleMutation as jest.MockedFunction<typeof useProcessCycleMutation>).mockReturnValue(mockMutationResult);
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => useProcessCycleMutation());
+      const { result } = renderHook(
+        () => useProcessCycleMutation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      result.current.mutate(mockCycleId);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.processCycle).toHaveBeenCalledWith(mockCycleId);
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockRejectedValue(new Error('Processing failed')),
-        isLoading: false,
-        isError: true,
-        isSuccess: false,
-        data: undefined,
-        error: new Error('Processing failed'),
-      };
+    it('should handle error when processing cycle', async () => {
+      const mockCycleId = 'pc-123';
+      const mockError = new Error('Failed to process cycle');
 
-      (useProcessCycleMutation as jest.MockedFunction<typeof useProcessCycleMutation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        processCycle: jest.fn().mockRejectedValue(mockError),
+      } as unknown as RepaymentRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => useProcessCycleMutation());
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      const { result } = renderHook(
+        () => useProcessCycleMutation(),
+        { wrapper }
+      );
+
+      result.current.mutate(mockCycleId);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
   describe('usePreparePlatformFeeWithdrawalMutation', () => {
-    it('should return success on successful API call', () => {
-      // Arrange
+    it('should prepare platform fee withdrawal successfully', async () => {
       const mockRequest = {
-        amount: 5000000,
-        recipient: '0x1234567890123456789012345678901234567890',
+        amount: 1000,
+        cid: 'c-456',
       };
       const mockResponse = {
-        data: {
-          transaction_hash: '0xabc123...',
-          estimated_gas: '45000',
-          gas_price: '25',
-          fee_distributed: true,
-        }
+        to: '0x123...',
+        data: '0x...',
+        value: '0',
       };
 
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockResolvedValue(mockResponse),
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-        data: mockResponse,
-        error: undefined,
-      };
+      const mockRepository = {
+        preparePlatformFeeWithdrawal: jest.fn().mockResolvedValue(mockResponse),
+      } as unknown as RepaymentRepositoryImpl;
 
-      (usePreparePlatformFeeWithdrawalMutation as jest.MockedFunction<typeof usePreparePlatformFeeWithdrawalMutation>).mockReturnValue(mockMutationResult);
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Act
-      const { result } = renderHook(() => usePreparePlatformFeeWithdrawalMutation());
+      const { result } = renderHook(
+        () => usePreparePlatformFeeWithdrawalMutation(),
+        { wrapper }
+      );
 
-      // Assert
-      expect(result.current.isSuccess).toBe(true);
+      result.current.mutate(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
       expect(result.current.data).toEqual(mockResponse);
+      expect(mockRepository.preparePlatformFeeWithdrawal).toHaveBeenCalledWith(mockRequest);
     });
 
-    it('should handle mutation errors', () => {
-      // Arrange
-      const mockMutationResult = {
-        mutate: jest.fn(),
-        mutateAsync: jest.fn().mockRejectedValue(new Error('Withdrawal preparation failed')),
-        isLoading: false,
-        isError: true,
-        isSuccess: false,
-        data: undefined,
-        error: new Error('Withdrawal preparation failed'),
+    it('should handle error when preparing platform fee withdrawal', async () => {
+      const mockRequest = {
+        amount: 1000,
+        cid: 'c-456',
       };
+      const mockError = new Error('Failed to prepare platform fee withdrawal');
 
-      (usePreparePlatformFeeWithdrawalMutation as jest.MockedFunction<typeof usePreparePlatformFeeWithdrawalMutation>).mockReturnValue(mockMutationResult);
+      const mockRepository = {
+        preparePlatformFeeWithdrawal: jest.fn().mockRejectedValue(mockError),
+      } as unknown as RepaymentRepositoryImpl;
 
-      // Act
-      const { result } = renderHook(() => usePreparePlatformFeeWithdrawalMutation());
+      (RepaymentRepositoryImpl as jest.MockedClass<typeof RepaymentRepositoryImpl>).mockImplementation(() => mockRepository);
 
-      // Assert
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBeDefined();
+      const { result } = renderHook(
+        () => usePreparePlatformFeeWithdrawalMutation(),
+        { wrapper }
+      );
+
+      result.current.mutate(mockRequest);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
     });
   });
 });
