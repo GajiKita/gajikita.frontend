@@ -1,16 +1,18 @@
-import { 
-  useSmartContractsQuery, 
-  useSmartContractQuery, 
-  useCreateSmartContractMutation, 
-  useUpdateSmartContractMutation, 
-  useDeleteSmartContractMutation 
+import {
+  useSmartContractsQuery,
+  useSmartContractQuery
 } from '../../data/smart-contract.query';
+import {
+  useCreateSmartContractMutation,
+  useUpdateSmartContractMutation,
+  useDeleteSmartContractMutation
+} from '../../data/smart-contract.mutation';
 
 export const useSmartContractsPresentation = () => {
   const query = useSmartContractsQuery({});
 
   return {
-    smartContracts: query.data?.smart_contracts || [],
+    smartContracts: query.data?.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

@@ -5,7 +5,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { columns } from './SmartContractColumns';
 import { useSmartContractsPresentation } from '../hooks/useSmartContractPresentation';
-import { CreateSmartContractForm } from './CreateSmartContractForm';
+import { CreateSmartContractModal } from './CreateSmartContractModal';
 import { useState } from 'react';
 
 export const SmartContractsList = () => {
@@ -45,16 +45,11 @@ export const SmartContractsList = () => {
         </CardContent>
       </Card>
 
-      {showCreateForm && (
-        <CreateSmartContractForm
-          open={showCreateForm}
-          onOpenChange={setShowCreateForm}
-          onSuccess={() => {
-            setShowCreateForm(false);
-            refetch();
-          }}
-        />
-      )}
+      <CreateSmartContractModal
+        open={showCreateForm}
+        onOpenChange={setShowCreateForm}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 };

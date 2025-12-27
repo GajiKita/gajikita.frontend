@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { columns } from './PayrollCycleColumns';
-import { usePayrollCyclesPresentation } from '../hooks/usePayrollCyclePresentation';
-import { CreatePayrollCycleForm } from './CreatePayrollCycleForm';
+import { usePayrollCyclePresentation } from '../hooks/usePayrollCyclePresentation';
+import { CreatePayrollCycleModal } from './CreatePayrollCycleModal';
 import { useState } from 'react';
 
 export const PayrollCyclesList = ({ companyId }: { companyId?: string }) => {
-  const { payrollCycles, isLoading, isError, error, refetch } = usePayrollCyclesPresentation({
+  const { payrollCycles, isLoading, isError, error, refetch } = usePayrollCyclePresentation({
     companyId
   });
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -47,16 +47,12 @@ export const PayrollCyclesList = ({ companyId }: { companyId?: string }) => {
         </CardContent>
       </Card>
 
-      {showCreateForm && (
-        <CreatePayrollCycleForm
-          open={showCreateForm}
-          onOpenChange={setShowCreateForm}
-          onSuccess={() => {
-            setShowCreateForm(false);
-            refetch();
-          }}
-        />
-      )}
+      <CreatePayrollCycleModal
+        open={showCreateForm}
+        onOpenChange={setShowCreateForm}
+        onSuccess={() => refetch()}
+        companyId={companyId}
+      />
     </div>
   );
 };

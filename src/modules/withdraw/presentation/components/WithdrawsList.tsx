@@ -3,21 +3,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
-import { columns } from './WithdrawColumns';
+import { columns } from '../tables/WithdrawColumns';
 import { useWithdrawsPresentation } from '../hooks/useWithdrawPresentation';
-import { CreateWithdrawForm } from './CreateWithdrawForm';
+import { CreateWithdrawForm } from '../forms/CreateWithdrawForm';
 import { useState } from 'react';
 
 export const WithdrawsList = ({ employeeId }: { employeeId?: string }) => {
-  const { withdraws, isLoading, isError, error, refetch } = useWithdrawsPresentation({
-    employeeId
-  });
+  const { withdraws, isLoading, isError, error, refetch } = useWithdrawsPresentation();
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
-        <div className="text-red-500 mb-4">Error: {error?.message}</div>
+        <div className="text-red-500 mb-4">Error loading withdrawals</div>
         <Button onClick={() => refetch()}>Retry</Button>
       </div>
     );

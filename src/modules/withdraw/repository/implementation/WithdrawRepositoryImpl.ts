@@ -10,6 +10,7 @@ import type { WithdrawRequestResponse } from "../../domain/res/WithdrawRequestRe
 import type { WithdrawRequestListResponse } from "../../domain/res/WithdrawRequestListResponse";
 import type { SimulationResponse } from "../../domain/res/SimulationResponse";
 import type { TransactionResponse } from "../../../shared/domain/res/TransactionResponse";
+import type { ExecuteWithdrawResponse } from "../../domain/res/ExecuteWithdrawResponse";
 
 export class WithdrawRepositoryImpl implements WithdrawRepository {
     async createWithdrawRequest(request: CreateWithdrawRequestDto): Promise<TransactionResponse> {

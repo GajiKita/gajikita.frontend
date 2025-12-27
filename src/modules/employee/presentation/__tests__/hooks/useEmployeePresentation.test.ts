@@ -24,23 +24,21 @@ describe('Employee Presentation Hooks Tests', () => {
   describe('useEmployeesByCompanyPresentation', () => {
     it('should return correct values', async () => {
       const mockCompanyId = 'company-123';
-      const mockResponse = {
-        employees: [
-          {
-            id: 'emp-1',
-            user_id: 'user-1',
-            company_id: 'company-123',
-            employee_number: 'EMP001',
-            position: 'Developer',
-            base_salary: 5000,
-            wallet_address: '0x123...',
-            status: 'ACTIVE',
-            sbt_token_id: 'sbt-1',
-            employed_started: '2023-01-01',
-            employed_ended: '2025-12-31',
-          },
-        ],
-      };
+      const mockResponse = [
+        {
+          id: 'emp-1',
+          user_id: 'user-1',
+          company_id: 'company-123',
+          employee_number: 'EMP001',
+          position: 'Developer',
+          base_salary: 5000,
+          wallet_address: '0x123...',
+          status: 'ACTIVE',
+          sbt_token_id: 'sbt-1',
+          employed_started: '2023-01-01',
+          employed_ended: '2025-12-31',
+        },
+      ];
 
       jest.mock('../../../data/employee.query', () => ({
         useEmployeesByCompanyQuery: jest.fn(() => ({
@@ -59,7 +57,7 @@ describe('Employee Presentation Hooks Tests', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.employees).toEqual(mockResponse.employees);
+        expect(result.current.employees).toEqual(mockResponse);
         expect(result.current.isLoading).toBe(false);
         expect(result.current.isError).toBe(false);
         expect(result.current.error).toBeNull();
@@ -72,23 +70,21 @@ describe('Employee Presentation Hooks Tests', () => {
 
   describe('useEmployeesByMyCompanyPresentation', () => {
     it('should return correct values', async () => {
-      const mockResponse = {
-        employees: [
-          {
-            id: 'emp-1',
-            user_id: 'user-1',
-            company_id: 'company-123',
-            employee_number: 'EMP001',
-            position: 'Developer',
-            base_salary: 5000,
-            wallet_address: '0x123...',
-            status: 'ACTIVE',
-            sbt_token_id: 'sbt-1',
-            employed_started: '2023-01-01',
-            employed_ended: '2025-12-31',
-          },
-        ],
-      };
+      const mockResponse = [
+        {
+          id: 'emp-1',
+          user_id: 'user-1',
+          company_id: 'company-123',
+          employee_number: 'EMP001',
+          position: 'Developer',
+          base_salary: 5000,
+          wallet_address: '0x123...',
+          status: 'ACTIVE',
+          sbt_token_id: 'sbt-1',
+          employed_started: '2023-01-01',
+          employed_ended: '2025-12-31',
+        },
+      ];
 
       jest.mock('../../../data/employee.query', () => ({
         useEmployeesByMyCompanyQuery: jest.fn(() => ({
@@ -107,7 +103,7 @@ describe('Employee Presentation Hooks Tests', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.employees).toEqual(mockResponse.employees);
+        expect(result.current.employees).toEqual(mockResponse);
         expect(result.current.isLoading).toBe(false);
         expect(result.current.isError).toBe(false);
         expect(result.current.error).toBeNull();

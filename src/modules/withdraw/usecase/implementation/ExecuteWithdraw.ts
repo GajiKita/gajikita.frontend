@@ -1,7 +1,7 @@
-import { IExecuteWithdraw } from "../usecase/interface/IExecuteWithdraw";
-import { WithdrawRepository } from "../repository/interface/WithdrawRepository";
-import type { ExecuteWithdrawRequest } from "../domain/req/ExecuteWithdrawRequest";
-import type { ExecuteWithdrawResponse } from "../domain/res/ExecuteWithdrawResponse";
+import { IExecuteWithdraw } from "../../usecase/interface/IExecuteWithdraw";
+import { WithdrawRepository } from "../../repository/interface/WithdrawRepository";
+import type { ExecuteWithdrawRequest } from "../../domain/req/ExecuteWithdrawRequest";
+import type { ExecuteWithdrawResponse } from "../../domain/res/ExecuteWithdrawResponse";
 
 export class ExecuteWithdraw implements IExecuteWithdraw {
     constructor(private repository: WithdrawRepository) {}

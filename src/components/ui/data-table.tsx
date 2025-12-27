@@ -35,16 +35,19 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   loading?: boolean;
+  isLoading?: boolean;
   enableSearch?: boolean;
   enableFilter?: boolean;
   searchPlaceholder?: string;
   searchField?: string;
+  onRefresh?: () => Promise<unknown> | void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   loading = false,
+  isLoading,
   enableSearch = false,
   enableFilter = false,
   searchPlaceholder = 'Search...',
@@ -54,6 +57,7 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const tableLoading = isLoading ?? loading;
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
@@ -142,7 +146,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {tableLoading ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}

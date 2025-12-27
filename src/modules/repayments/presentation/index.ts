@@ -3,8 +3,8 @@
 export { RepaymentsDashboard } from './components/RepaymentsDashboard';
 
 // Forms
-export { ProcessCycleForm } from './forms/ProcessCycleForm';
-export { PreparePlatformFeeWithdrawalForm } from './forms/PreparePlatformFeeWithdrawalForm';
+export { ProcessCycleForm } from './components/ProcessCycleForm';
+export { PreparePlatformFeeWithdrawalForm } from './components/PreparePlatformFeeWithdrawalForm';
 
 // Hooks
 export { 

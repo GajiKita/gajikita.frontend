@@ -23,7 +23,7 @@ export const useEmployeeListPresentation = (params: {
   const query = useEmployeesQuery(params);
 
   return {
-    employees: query.data?.employees || [],
+    employees: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -35,7 +35,7 @@ export const useEmployeesByCompanyPresentation = (companyId: string) => {
   const query = useEmployeesByCompanyQuery(companyId);
 
   return {
-    employees: query.data?.employees || [],
+    employees: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -47,7 +47,7 @@ export const useEmployeesByMyCompanyPresentation = () => {
   const query = useEmployeesByMyCompanyQuery();
 
   return {
-    employees: query.data?.employees || [],
+    employees: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
