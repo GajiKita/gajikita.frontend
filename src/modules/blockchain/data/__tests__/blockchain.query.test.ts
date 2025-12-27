@@ -1,10 +1,8 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import {
-  useSupportedTokensQuery,
-  useSyncTokensMutation
-} from '../../data/blockchain.query';
+import { useSupportedTokensQuery } from '../../data/blockchain.query';
+import { useSyncTokensMutation } from '../../data/blockchain.mutation';
 import { BlockchainRepositoryImpl } from '../../repository/implementation/BlockchainRepositoryImpl';
 
 // Mock the repository
@@ -30,19 +28,17 @@ describe('Blockchain Data Layer Tests', () => {
 
   describe('useSupportedTokensQuery', () => {
     it('should fetch supported tokens successfully', async () => {
-      const mockResponse = {
-        tokens: [
-          {
-            id: 'tk-123',
-            name: 'USDC',
-            symbol: 'USDC',
-            address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            chain_id: 421614,
-            decimals: 6,
-            is_active: true,
-          },
-        ],
-      };
+      const mockResponse = [
+        {
+          id: 'tk-123',
+          name: 'USDC',
+          symbol: 'USDC',
+          address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          chain_id: 421614,
+          decimals: 6,
+          is_active: true,
+        },
+      ];
 
       const mockRepository = {
         getSupportedTokens: jest.fn().mockResolvedValue(mockResponse),

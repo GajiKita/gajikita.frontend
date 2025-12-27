@@ -1,13 +1,14 @@
-import {
+import { 
   useEmployeesQuery,
+  useEmployeeQuery,
   useEmployeesByCompanyQuery,
   useEmployeesByMyCompanyQuery,
-  useEmployeeQuery,
 } from '../../data/employee.query';
 import {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
-  useDeleteEmployeeMutation
+  useDeleteEmployeeMutation,
+  useUpdateMePreferredTokenMutation
 } from '../../data/employee.mutation';
 import { EmployeeEntity } from '../../domain/entity/EmployeeEntity';
 import { CreateEmployeeRequest } from '../../domain/req/CreateEmployeeRequest';
@@ -98,5 +99,18 @@ export const useDeleteEmployeePresentation = () => {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+  };
+};
+
+export const useUpdateMePreferredTokenPresentation = () => {
+  const mutation = useUpdateMePreferredTokenMutation();
+
+  return {
+    updateMePreferredToken: mutation.mutate,
+    isLoading: mutation.isPending,
+    isError: mutation.isError,
+    error: mutation.error,
+    isSuccess: mutation.isSuccess,
+    data: mutation.data,
   };
 };

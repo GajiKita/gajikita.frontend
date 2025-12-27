@@ -30,19 +30,17 @@ describe('Blockchain Presentation Hooks Tests', () => {
 
   describe('useSupportedTokensPresentation', () => {
     it('should return correct values', async () => {
-      const mockResponse = {
-        tokens: [
-          {
-            id: 'tk-123',
-            name: 'USDC',
-            symbol: 'USDC',
-            address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            chain_id: 421614,
-            decimals: 6,
-            is_active: true,
-          },
-        ],
-      };
+      const mockResponse = [
+        {
+          id: 'tk-123',
+          name: 'USDC',
+          symbol: 'USDC',
+          address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          chain_id: 421614,
+          decimals: 6,
+          is_active: true,
+        },
+      ];
 
       const mockRepository = {
         getSupportedTokens: jest.fn().mockResolvedValue(mockResponse),
@@ -56,7 +54,7 @@ describe('Blockchain Presentation Hooks Tests', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.tokens).toEqual(mockResponse.tokens);
+        expect(result.current.tokens).toEqual(mockResponse);
         expect(result.current.isLoading).toBe(false);
         expect(result.current.isError).toBe(false);
         expect(result.current.error).toBeNull();

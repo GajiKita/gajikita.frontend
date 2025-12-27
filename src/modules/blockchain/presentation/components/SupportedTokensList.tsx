@@ -3,9 +3,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
-import { columns } from './TokenColumns';
+import { columns } from '../tables/TokenColumns';
 import { useSupportedTokensPresentation } from '../hooks/useBlockchainPresentation';
-import { SyncTokensForm } from './SyncTokensForm';
+import { SyncTokensForm } from '../forms/SyncTokensForm';
 import { useState } from 'react';
 
 export const SupportedTokensList = () => {

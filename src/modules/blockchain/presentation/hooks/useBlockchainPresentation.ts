@@ -5,7 +5,7 @@ export const useSupportedTokensPresentation = () => {
   const query = useSupportedTokensQuery();
 
   return {
-    tokens: query.data?.tokens || [],
+    tokens: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
